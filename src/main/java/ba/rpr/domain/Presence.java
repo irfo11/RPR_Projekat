@@ -1,7 +1,7 @@
 package ba.rpr.domain;
 
 /**
- * Shows the source of a micronutrient and the amount of a micronutrient (represented in mcg) inside 100 grams of the source
+ * Shows the source of a micronutrient and the amount of a micronutrient (represented in mg) inside 100 grams of the source
  */
 public class Presence {
     private int id;
