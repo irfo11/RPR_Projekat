@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>RPR_Projekat</name>
-    <url>http://github.com/irfo11/Zadaca1_RPR</url>
+    <name>RPR_Project</name>
+    <url>http://github.com/irfo11/RPR_Project</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,6 +30,12 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.8.2</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.30</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -59,7 +65,7 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <mainClass>ba.unsa.etf.rpr.App</mainClass>
+                                <mainClass>App</mainClass>
                             </manifest>
                         </archive>
                     </configuration>
