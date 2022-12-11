@@ -9,6 +9,14 @@ public class Presence {
     private Source source;
     private double amount;
 
+    public Presence(){}
+    public Presence(int id, Micronutrient micronutrient, Source source, double amount) {
+        this.id = id;
+        this.micronutrient = micronutrient;
+        this.source = source;
+        this.amount = amount;
+    }
+
     public int getId() {
         return id;
     }

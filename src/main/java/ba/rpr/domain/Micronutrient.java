@@ -9,6 +9,14 @@ public class Micronutrient {
     private String role;
     private boolean isVitamin;
 
+    public Micronutrient(){}
+    public Micronutrient(int id, String name, String role, boolean isVitamin) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.isVitamin = isVitamin;
+    }
+
     public int getId() {
         return id;
     }
