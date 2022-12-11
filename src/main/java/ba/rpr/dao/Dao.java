@@ -36,10 +36,4 @@ public interface Dao<T> {
      */
     void update(int id, T item);
 
-    /**
-     * Returns all entities inside database
-     *
-     * @return all entities inside database
-     */
-    List<T> getAll();
 }
