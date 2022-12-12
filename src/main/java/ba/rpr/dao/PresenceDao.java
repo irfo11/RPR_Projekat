@@ -10,20 +10,20 @@ import java.util.SortedSet;
  */
 public interface PresenceDao extends Dao<Presence> {
     /**
-     * Returns a sorted set of micronutrient objects that are found inside the given source.
+     * Returns a sorted set of Presence objects that have the given source as a field.
      * The first element has the highest presence inside the source.
      * @param sourceName - name of the source whose micronutrients are returned
-     * @return sorted set of micronutrient objects that are found inside the given source
+     * @return sorted set of Presence objects that have the given source as a field
      */
-    SortedSet<Micronutrient> micronutrientsInSource(String sourceName);
+    SortedSet<Presence> micronutrientsInSource(String sourceName);
 
     /**
-     * Returns a sorted set of source objects that are a source of the given micronutrient.
+     * Returns a sorted set of Presence objects that have the given micronutrient as a field
      * The first element has the highest presence inside the micronutrient.
      * @param micronutrientName - name of the micronutrient whose sources are returned
-     * @return sorted set of source objects that are a source of the given micronutrient
+     * @return sorted set of Presence objects that have the given micronutrient as a field
      */
-    SortedSet<Source> sourcesOfMicronutrient(String micronutrientName);
+    SortedSet<Presence> sourcesOfMicronutrient(String micronutrientName);
 
     /**
      * Returns Presence object from database based on given micronutrient name and source name,
