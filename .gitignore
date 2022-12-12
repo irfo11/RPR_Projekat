@@ -1,2 +1,3 @@
 .idea
 target
+src/main/resources/ba/rpr/dao/db.properties
