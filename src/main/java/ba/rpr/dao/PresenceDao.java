@@ -25,4 +25,12 @@ public interface PresenceDao extends Dao<Presence> {
      */
     SortedSet<Source> sourcesOfMicronutrient(String micronutrientName);
 
+    /**
+     * Returns Presence object from database based on given micronutrient name and source name,
+     * null if element does not exist.
+     * @param micronutrientName - name of the micronutrient in presence element
+     * @param sourceName - name of the source to be found in presence element
+     * @return presence object with the given micronutrient name and source name, null if element does not exist
+     */
+    Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName);
 }
