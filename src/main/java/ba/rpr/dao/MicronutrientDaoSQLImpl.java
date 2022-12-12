@@ -12,7 +12,7 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
 
     private Connection conn;
 
-    MicronutrientDaoSQLImpl() {
+    public MicronutrientDaoSQLImpl() {
         Properties databaseProperties = new Properties();
         try{
             databaseProperties.load(MicronutrientDaoSQLImpl.class.getResourceAsStream("/ba/rpr/dao/db.properties"));
