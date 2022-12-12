@@ -44,6 +44,7 @@ public class SourceDaoSQLImpl implements SourceDao{
      *
      * @param id - the id of the entity
      * @return entity that has the same id, null if there is no element with the same id
+     * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     @Override
     public Source getById(int id) {
@@ -59,6 +60,7 @@ public class SourceDaoSQLImpl implements SourceDao{
             System.out.println("Problem with database");
             e.printStackTrace();
         }
+        if(source == null) throw new ElementNotFoundException("Id does not exist");
         return source;
     }
 
@@ -117,6 +119,7 @@ public class SourceDaoSQLImpl implements SourceDao{
      *
      * @param name - name of the source to be returned
      * @return source object with the same name given as parameter, null if there is no element with same name
+     * @throws ElementNotFoundException - if element with given name can't be found in database
      */
     @Override
     public Source searchByName(String name) {
@@ -132,6 +135,7 @@ public class SourceDaoSQLImpl implements SourceDao{
             System.out.println("Problem with database");
             e.printStackTrace();
         }
+        if(source == null) throw new ElementNotFoundException("Name does not exist");
         return source;
     }
 
