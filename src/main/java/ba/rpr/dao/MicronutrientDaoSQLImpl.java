@@ -49,12 +49,13 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
                                                   result.getString("name"),
                                                   result.getString("role"),
                                                   result.getBoolean("is_vitamin"));
+            } else {
+                throw new ElementNotFoundException("Micronutrient with id=" + id + " does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(micronutrient == null) throw new ElementNotFoundException("Micronutrient with id=" + id + " does not exist");
         return micronutrient;
     }
 
