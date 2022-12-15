@@ -55,12 +55,13 @@ public class PresenceDaoSQLImpl implements PresenceDao {
                                         micronutrientDao.getById(result.getInt("micronutrient_id")),
                                         sourceDao.getById(result.getInt("source_id")),
                                         result.getDouble("amount"));
+            } else {
+                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(presence == null) throw new ElementNotFoundException("Id does not exist");
         return presence;
     }
 
@@ -68,10 +69,17 @@ public class PresenceDaoSQLImpl implements PresenceDao {
      * Adds entity to database
      *
      * @param item - entity to be added to database
+     * @throws ElementAlreadyExistsException - if element with the same micronutrient id and source id
+     * already exists
      */
     @Override
     public void add(Presence item) {
         try(Statement stmt = conn.createStatement()) {
+            if(stmt.executeQuery("SELECT id FROM presence WHERE micronutrient_id " +
+                    item.getMicronutrient().getId() + " source_id=" + item.getSource().getId()).next()) {
+                throw new ElementAlreadyExistsException("Presence with " + item.getMicronutrient().getName() +
+                        " and " + item.getSource().getName() + " already exists");
+            }
             stmt.executeUpdate("INSERT INTO presence (micronutrient_id, source_id, amount) VALUES (" +
                     item.getMicronutrient().getId() + ", " + item.getSource().getId() + ", " + item.getAmount() + ")");
         } catch(SQLException e) {
@@ -84,11 +92,14 @@ public class PresenceDaoSQLImpl implements PresenceDao {
      * Deletes entity from database based on id
      *
      * @param id - id of entity to be deleted
+     * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     @Override
     public void delete(int id) {
         try(Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM presence WHERE id=" + id);
+            if(stmt.executeUpdate("DELETE FROM presence WHERE id=" + id) == 0) {
+                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
@@ -100,13 +111,23 @@ public class PresenceDaoSQLImpl implements PresenceDao {
      *
      * @param id   - id of the entity to be updated
      * @param item - object that contains updates for the entity
+     * @throws ElementNotFoundException - if element with given id can't be found in database
+     * @throws ElementAlreadyExistsException - if presence that we are trying to update changes its
+     * micronutrient id and source id, and a presence with both those ids already exists
      */
     @Override
     public void update(int id, Presence item) {
         try(Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("UPDATE presence SET (micronutrient_id=" + item.getMicronutrient().getId() +
+            if(stmt.executeQuery("SELECT * FROM presence WHERE micronutrient_id=" + item.getMicronutrient().getId() +
+                " AND source_id=" + item.getSource().getId()).next()) {
+                throw new ElementAlreadyExistsException("Presence with " + item.getMicronutrient().getName() +
+                        " and " + item.getSource().getName() + " already exists");
+            }
+            if(stmt.executeUpdate("UPDATE presence SET (micronutrient_id=" + item.getMicronutrient().getId() +
                 ", source_id=" + item.getSource().getId() + ", amount=" + item.getAmount() + ") " +
-                    "WHERE id=" + id);
+                    "WHERE id=" + id) == 0) {
+                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
@@ -132,10 +153,12 @@ public class PresenceDaoSQLImpl implements PresenceDao {
             //it would be faster if there was a method getIdFromName
             ResultSet results = stmt.executeQuery("SELECT * FROM presence WHERE source_id=" +
                     sourceDao.searchByName(sourceName).getId());
+            //search by name will throw exception
             /*this source gets created over and over in while loop, so if we can find some way to
             create once up there and there and use it in while loop. Or we could use Pair class to
             just store <Micronutrient, double>
              */
+
             while(results.next()) {
                 presences.add(new Presence(results.getInt("id"),
                                            micronutrientDao.getById(results.getInt("micronutrient_id")),
@@ -203,12 +226,14 @@ public class PresenceDaoSQLImpl implements PresenceDao {
                                         micronutrientDao.getById(result.getInt("micronutrient_id")),
                                         sourceDao.getById(result.getInt("source_id")),
                                         result.getDouble("amount"));
+            } else {
+                throw new ElementNotFoundException("Presence with " + micronutrientName + " and " + sourceName +
+                        " does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(presence == null) throw new ElementNotFoundException("micronutrient name and source name can't be found");
         return presence;
     }
 }
