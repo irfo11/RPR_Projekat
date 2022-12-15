@@ -33,10 +33,10 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
 
 
     /**
-     * Returns entity from database based on given id, null if there is no element with the same id
+     * Returns entity from database based on given id
      *
      * @param id - the id of the entity
-     * @return entity that has the same id, null if there is no element with the same id
+     * @return entity that has the same id
      * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     @Override
@@ -54,7 +54,7 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(micronutrient == null) throw new ElementNotFoundException("Id does not exist");
+        if(micronutrient == null) throw new ElementNotFoundException("Micronutrient with id=" + id + " does not exist");
         return micronutrient;
     }
 
@@ -62,16 +62,19 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
      * Adds entity to database
      *
      * @param item - entity to be added to database
+     * @throws ElementAlreadyExistsException - if element already exist, based on micronutrient name
      */
     @Override
     public void add(Micronutrient item) {
         try(PreparedStatement stmt =
-                    conn.prepareStatement("INSERT INTO sources (name, role, is_vitamin) VALUES (?, ?, ?)")) {
+                    conn.prepareStatement("INSERT INTO sources (name, role, is_vitamin) VALUES (?, ?, ?")) {
             stmt.setString(1, item.getName());
             stmt.setString(2, item.getRole());
             stmt.setBoolean(3, item.isVitamin());
             stmt.executeUpdate();
         } catch(SQLException e) {
+            //sql is not case-sensitive, when searching if there is column with same name
+            if(e.getErrorCode() == 1062) throw new ElementAlreadyExistsException(item.getName() + " already exists");
             System.out.println("Problem with database");
             e.printStackTrace();
         }
@@ -81,11 +84,15 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
      * Deletes entity from database based on id
      *
      * @param id - id of entity to be deleted
+     * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     @Override
     public void delete(int id) {
         try(Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM micronutrient WHERE id=" + id);
+            if(stmt.executeUpdate("DELETE FROM micronutrient WHERE id=" + id) == 0) {
+                //this means that 0 rows were affected
+                throw new ElementNotFoundException("Micronutrient with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
@@ -97,6 +104,9 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
      *
      * @param id   - id of the entity to be updated
      * @param item - object that contains updates for the entity
+     * @throws ElementNotFoundException - if element with given id can't be found in database
+     * @throws ElementAlreadyExistsException - if micronutrient that we are updating changes its name
+     * to a value that already exists
      */
     @Override
     public void update(int id, Micronutrient item) {
@@ -105,8 +115,12 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
             stmt.setString(1, item.getName());
             stmt.setString(2, item.getRole());
             stmt.setBoolean(3, item.isVitamin());
-            stmt.executeUpdate();
+            if(stmt.executeUpdate() == 0){
+                throw new ElementNotFoundException("Micronutrient with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
+            if(e.getErrorCode() == 1062) throw new ElementAlreadyExistsException("Cannot update because, " + item.getName() +
+                    " already exists");
             System.out.println("Problem with database");
             e.printStackTrace();
         }
@@ -130,12 +144,13 @@ public class MicronutrientDaoSQLImpl implements MicronutrientDao{
                                                   result.getString("name"),
                                                   result.getString("role"),
                                                   result.getBoolean("is_vitamin"));
+            } else {
+                throw new ElementNotFoundException(name + " does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(micronutrient == null) throw new ElementNotFoundException("Name does not exist");
         return micronutrient;
     }
 
