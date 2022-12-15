@@ -29,7 +29,7 @@ public interface Dao<T> {
      * Adds entity to database
      *
      * @param item - entity to be added to database
-     * @throws ElementAlreadyExists - if element already exist, based on user defined property
+     * @throws ElementAlreadyExistsException - if element already exist, based on user defined property
      */
     void add(T item);
 
