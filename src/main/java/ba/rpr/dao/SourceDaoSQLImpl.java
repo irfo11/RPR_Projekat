@@ -55,12 +55,13 @@ public class SourceDaoSQLImpl implements SourceDao{
             if(result.next()) {
                 source = new Source(result.getInt("id"),
                                     result.getString("name"));
+            } else {
+                throw new ElementNotFoundException("Id does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(source == null) throw new ElementNotFoundException("Id does not exist");
         return source;
     }
 
@@ -68,6 +69,7 @@ public class SourceDaoSQLImpl implements SourceDao{
      * Adds entity to database
      *
      * @param item - entity to be added to database
+     * @throws ElementAlreadyExistsException - if source with the same name already exists
      */
     @Override
     public void add(Source item) {
@@ -76,6 +78,7 @@ public class SourceDaoSQLImpl implements SourceDao{
             stmt.setString(1, item.getName());
             stmt.executeUpdate();
         } catch(SQLException e){
+            if(e.getErrorCode() == 1062) throw new ElementAlreadyExistsException(item.getName() + " already exists");
             System.out.println("Problem with database");
             e.printStackTrace();
         }
@@ -85,11 +88,14 @@ public class SourceDaoSQLImpl implements SourceDao{
      * Deletes entity from database based on id
      *
      * @param id - id of entity to be deleted
+     * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     @Override
     public void delete(int id) {
         try(Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM sources WHERE id=" + id);
+            if(stmt.executeUpdate("DELETE FROM sources WHERE id=" + id) == 0) {
+                throw new ElementNotFoundException("Source with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
@@ -101,14 +107,21 @@ public class SourceDaoSQLImpl implements SourceDao{
      *
      * @param id   - id of the entity to be updated
      * @param item - object that contains updates for the entity
+     * @throws ElementNotFoundException - if element with given id can't be found in database
+     * @throws ElementAlreadyExistsException - if source that we are trying to update changes its name
+     * to a value that already exists
      */
     @Override
     public void update(int id, Source item) {
         try(PreparedStatement stmt =
                     conn.prepareStatement("UPDATE sources SET name=? WHERE id=" + id)){
             stmt.setString(1, item.getName());
-            stmt.executeUpdate();
+            if(stmt.executeUpdate() == 0) {
+                throw new ElementNotFoundException("Source with id=" + id + " does not exist");
+            }
         } catch(SQLException e) {
+            if(e.getErrorCode() == 1062) throw new ElementAlreadyExistsException("Cannot update because, " +
+                    item.getName() + " already exists");
             System.out.println("Problem with database");
             e.printStackTrace();
         }
@@ -130,12 +143,13 @@ public class SourceDaoSQLImpl implements SourceDao{
             if(result.next()){
                 source = new Source(result.getInt("id"),
                                     result.getString("name"));
+            } else {
+                throw new ElementNotFoundException(name + " does not exist");
             }
         } catch(SQLException e) {
             System.out.println("Problem with database");
             e.printStackTrace();
         }
-        if(source == null) throw new ElementNotFoundException("Name does not exist");
         return source;
     }
 
