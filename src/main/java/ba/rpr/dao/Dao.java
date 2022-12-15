@@ -47,6 +47,8 @@ public interface Dao<T> {
      * @param id - id of the entity to be updated
      * @param item - object that contains updates for the entity
      * @throws ElementNotFoundException - if element with given id can't be found in database
+     * @throws ElementAlreadyExistsException - if element that we are updating changes one of its unique columns
+     * to a value that already exist
      */
     void update(int id, T item);
 
