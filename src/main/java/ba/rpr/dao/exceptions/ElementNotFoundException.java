@@ -1,7 +1,7 @@
-package ba.rpr.dao;
+package ba.rpr.dao.exceptions;
 
 public class ElementNotFoundException extends RuntimeException{
-    ElementNotFoundException(String msg) {
+    public ElementNotFoundException(String msg) {
         super(msg);
     }
 }

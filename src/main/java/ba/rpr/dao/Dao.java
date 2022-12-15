@@ -1,6 +1,7 @@
 package ba.rpr.dao;
 
-import java.util.List;
+import ba.rpr.dao.exceptions.ElementAlreadyExistsException;
+import ba.rpr.dao.exceptions.ElementNotFoundException;
 
 /**
  * Root interface for all Dao classes
