@@ -17,10 +17,10 @@ import java.util.List;
  */
 public interface Dao<T> {
     /**
-     * Returns entity from database based on given id, null if there is no element with the same id
+     * Returns entity from database based on given id
      *
      * @param id - the id of the entity
-     * @return entity that has the same id, null if there is no element with the same id
+     * @return entity that has the same id
      * @throws ElementNotFoundException - if element with given id can't be found in database
      */
     T getById(int id);
