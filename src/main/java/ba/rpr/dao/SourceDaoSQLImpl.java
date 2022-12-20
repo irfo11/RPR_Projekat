@@ -72,7 +72,7 @@ public class SourceDaoSQLImpl implements SourceDao{
      */
     @Override
     public void add(Source item) {
-        try(PreparedStatement stmt = conn.prepareStatement("INSERT INTO sources name VALUES ?")){
+        try(PreparedStatement stmt = conn.prepareStatement("INSERT INTO sources (name) VALUES (?)")){
             //prepared statement is used because name can be set into a sql query
             stmt.setString(1, item.getName());
             stmt.executeUpdate();
