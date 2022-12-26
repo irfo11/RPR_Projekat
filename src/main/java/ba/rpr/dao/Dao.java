@@ -3,19 +3,12 @@ package ba.rpr.dao;
 import ba.rpr.dao.exceptions.ElementAlreadyExistsException;
 import ba.rpr.dao.exceptions.ElementNotFoundException;
 
+import java.util.SortedSet;
+
 /**
  * Root interface for all Dao classes
  */
-/*
- should format name for micronutrient and sources when using add method, could do that by changing setters and constructor
- in domain classes so first letter is capitalized and rest small letters (or in javaFX, but then terminal app would not be able to use it).
- So sql can see if it unique. Presence is a little
- harder now I have to always check before adding if there is a already a link before adding, sql can't take care of that.
- Create function that builds object from resultSet. Or find a way how to use getObject()
- Gotta add throws in javadoc for the main Dao interface aswell even if its an interface
 
- u add mozes dodat id i da baza vrati error ako objekat sa istim id-em postoji
- */
 public interface Dao<T> {
     /**
      * Returns entity from database based on given id
@@ -52,5 +45,12 @@ public interface Dao<T> {
      * to a value that already exist
      */
     void update(int id, T item);
+
+    /**
+     * Returns all elements in table sorted by user defined comparison
+     *
+     * @return all elements in table sorted
+     */
+    SortedSet<T> getAll();
 
 }
