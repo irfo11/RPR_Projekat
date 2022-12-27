@@ -14,5 +14,5 @@ public interface MicronutrientDao extends Dao<Micronutrient> {
      * @return micronutrient with the same name given as parameter
      * @throws DaoException - if element with given name can't be found in database
      */
-    Micronutrient searchByName(String name);
+    Micronutrient searchByName(String name) throws DaoException;
 }
