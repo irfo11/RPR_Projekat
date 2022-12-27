@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
 
-    SourceDaoSQLImpl() {
+    public SourceDaoSQLImpl() {
         super("sources");
     }
 

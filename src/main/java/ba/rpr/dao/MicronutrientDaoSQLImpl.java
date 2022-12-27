@@ -9,7 +9,7 @@ import java.util.*;
 
 public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implements MicronutrientDao{
 
-    MicronutrientDaoSQLImpl() {
+    public MicronutrientDaoSQLImpl() {
         super("micronutrients");
     }
 
