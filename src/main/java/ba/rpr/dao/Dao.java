@@ -51,6 +51,6 @@ public interface Dao<T> {
      *
      * @return all elements in table sorted
      */
-    List<T> getAll();//sorting done by sql
+    List<T> getAll() throws DaoException;//sorting done by sql
 
 }
