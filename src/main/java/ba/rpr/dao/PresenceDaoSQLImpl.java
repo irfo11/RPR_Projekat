@@ -62,7 +62,7 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     public List<Presence> micronutrientsInSource(String sourceName) throws DaoException { //ordered in descending order
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
-        query.append("SELECT FROM * ").append(getTableName()).append(" WHERE source=").
+        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE source=").
                 append(DaoFactory.sourceDao().searchByName(sourceName).getId()).
                 append(" ORDER BY amount DESC");
         Presence presence = null;
@@ -83,7 +83,7 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     public List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException {//refactorisat kao i onaj gore
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
-        query.append("SELECT FROM * ").append(getTableName()).append(" WHERE source=").
+        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
                 append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
                 append(" ORDER BY amount DESC");
         Presence presence = null;

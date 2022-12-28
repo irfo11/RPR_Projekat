@@ -47,11 +47,8 @@ public abstract class AbstractDao<T> implements Dao<T>{
             StringBuilder query = new StringBuilder();
             query.append("SELECT * FROM ").append(tableName).append(" WHERE id=").append(id);
             ResultSet result = stmt.executeQuery(query.toString());
-            if (result.next()) {
-                object = row2object(result);
-            } else {
-                throw new DaoException("Element does not exist");
-            }
+            object = row2object(result);
+            if(object == null) throw new DaoException("Element does not exist");
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         }
