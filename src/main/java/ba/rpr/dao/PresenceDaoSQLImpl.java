@@ -1,238 +1,121 @@
 package ba.rpr.dao;
 
-import ba.rpr.dao.exceptions.ElementAlreadyExistsException;
-import ba.rpr.dao.exceptions.ElementNotFoundException;
+import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Presence;
 
-import java.io.IOException;
 import java.sql.*;
 
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
-public class PresenceDaoSQLImpl implements PresenceDao {
-
-    private Connection conn;
+public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements PresenceDao {
 
     public PresenceDaoSQLImpl() {
-        Properties databaseProperties = new Properties();
-        try {
-            databaseProperties.load(PresenceDaoSQLImpl.class.getResourceAsStream("/ba/rpr/dao/db.properties"));
-            conn = DriverManager.getConnection(databaseProperties.getProperty("url"),
-                                               databaseProperties.getProperty("username"),
-                                               databaseProperties.getProperty("password"));
-
-        } catch(NullPointerException e) {
-            System.out.println("File does not exist");
-            e.printStackTrace();
-        } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
-        } catch(IOException e) {
-            System.out.println("Problem with file");
-            e.printStackTrace();
-        }
+        super("presence");
     }
 
-    /**
-     * Returns entity from database based on given id, null if there is no element with the same id
-     *
-     * @param id - the id of the entity
-     * @return entity that has the same id, null if there is no element with the same id
-     * @throws ElementNotFoundException - if element with given id can't be found in database
-     */
     @Override
-    public Presence getById(int id) {
+    public Presence row2object(ResultSet rs) throws DaoException { //return null if not found
         Presence presence = null;
-        try(Statement stmt = conn.createStatement()) {
-            ResultSet result = stmt.executeQuery("SELECT * FROM presence WHERE id=" + id);
-            if(result.next()) {
-                //mislim da je ovo sporo, i ruzno, pogledat kako napraviti sa getObject
-                MicronutrientDao micronutrientDao = new MicronutrientDaoSQLImpl();
-                SourceDao sourceDao = new SourceDaoSQLImpl();
-                presence = new Presence(result.getInt("id"),
-                                        micronutrientDao.getById(result.getInt("micronutrient_id")),
-                                        sourceDao.getById(result.getInt("source_id")),
-                                        result.getDouble("amount"));
-            } else {
-                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
+        try {
+            if(rs.next()) {
+                presence = new Presence(rs.getInt("id"),
+                        DaoFactory.micronutrientDao().getById(rs.getInt("micronutrient")),
+                        DaoFactory.sourceDao().getById(rs.getInt("source")),
+                        rs.getDouble("amount"));
             }
         } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
+            throw new DaoException(e.getMessage());
         }
         return presence;
     }
 
-    /**
-     * Adds entity to database
-     *
-     * @param item - entity to be added to database
-     * @throws ElementAlreadyExistsException - if element with the same micronutrient id and source id
-     * already exists
-     */
     @Override
-    public void add(Presence item) {
-        try(Statement stmt = conn.createStatement()) {
-            if(stmt.executeQuery("SELECT id FROM presence WHERE micronutrient_id " +
-                    item.getMicronutrient().getId() + " source_id=" + item.getSource().getId()).next()) {
-                throw new ElementAlreadyExistsException("Presence with " + item.getMicronutrient().getName() +
-                        " and " + item.getSource().getName() + " already exists");
-            }
-            stmt.executeUpdate("INSERT INTO presence (micronutrient_id, source_id, amount) VALUES (" +
-                    item.getMicronutrient().getId() + ", " + item.getSource().getId() + ", " + item.getAmount() + ")");
-        } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
-        }
+    public Map<String, Object> object2row(Presence object) {
+        Map<String, Object> row = new TreeMap<>();
+        row.put("id", object.getId());
+        row.put("micronutrient", object.getMicronutrient().getId());
+        row.put("source", object.getSource().getId());
+        row.put("amount", object.getAmount());
+        return row;
     }
 
-    /**
-     * Deletes entity from database based on id
-     *
-     * @param id - id of entity to be deleted
-     * @throws ElementNotFoundException - if element with given id can't be found in database
-     */
     @Override
-    public void delete(int id) {
-        try(Statement stmt = conn.createStatement()) {
-            if(stmt.executeUpdate("DELETE FROM presence WHERE id=" + id) == 0) {
-                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
+    public List<Presence> getAll() throws DaoException {
+        List<Presence> presences = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM ").append(getTableName());
+        try(Statement stmt = getConnection().createStatement()) {
+            ResultSet rs = stmt.executeQuery(query.toString());
+            Presence presence = null;
+            for(;;) {
+                presence = row2object(rs);
+                if(presence == null) break;
+                presences.add(presence);
             }
         } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Updates the entity with the same id
-     *
-     * @param id   - id of the entity to be updated
-     * @param item - object that contains updates for the entity
-     * @throws ElementNotFoundException - if element with given id can't be found in database
-     * @throws ElementAlreadyExistsException - if presence that we are trying to update changes its
-     * micronutrient id and source id, and a presence with both those ids already exists
-     */
-    @Override
-    public void update(int id, Presence item) {
-        try(Statement stmt = conn.createStatement()) {
-            if(stmt.executeQuery("SELECT * FROM presence WHERE micronutrient_id=" + item.getMicronutrient().getId() +
-                " AND source_id=" + item.getSource().getId()).next()) {
-                throw new ElementAlreadyExistsException("Presence with " + item.getMicronutrient().getName() +
-                        " and " + item.getSource().getName() + " already exists");
-            }
-            if(stmt.executeUpdate("UPDATE presence SET (micronutrient_id=" + item.getMicronutrient().getId() +
-                ", source_id=" + item.getSource().getId() + ", amount=" + item.getAmount() + ") " +
-                    "WHERE id=" + id) == 0) {
-                throw new ElementNotFoundException("Presence with id=" + id + " does not exist");
-            }
-        } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Returns a sorted set of Presence objects that have the given source as a field.
-     * The first element has the highest presence inside the source.
-     *
-     * @param sourceName - name of the source whose micronutrients are returned
-     * @return sorted set of Presence objects that have the given source as a field
-     * @throws ElementNotFoundException - if source with given sourceName can't be found in database
-     */
-    @Override
-    public SortedSet<Presence> micronutrientsInSource(String sourceName) {
-        SortedSet<Presence> presences =
-                new TreeSet<>((Presence p1, Presence p2) -> Double.compare(p2.getAmount(), p1.getAmount()));
-                //changed orientation so it is sorted from highest to lowest
-        try(Statement stmt = conn.createStatement()) {
-            SourceDao sourceDao = new SourceDaoSQLImpl();
-            MicronutrientDao micronutrientDao = new MicronutrientDaoSQLImpl();
-            //it would be faster if there was a method getIdFromName
-            ResultSet results = stmt.executeQuery("SELECT * FROM presence WHERE source_id=" +
-                    sourceDao.searchByName(sourceName).getId());
-            //search by name will throw exception
-            /*this source gets created over and over in while loop, so if we can find some way to
-            create once up there and there and use it in while loop. Or we could use Pair class to
-            just store <Micronutrient, double>
-             */
-
-            while(results.next()) {
-                presences.add(new Presence(results.getInt("id"),
-                                           micronutrientDao.getById(results.getInt("micronutrient_id")),
-                                           sourceDao.getById(results.getInt("source_id")),
-                                           results.getDouble("amount")));
-            }
-        } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
+            throw new DaoException(e.getMessage());
         }
         return presences;
     }
 
-    /**
-     * Returns a sorted set of Presence objects that have the given micronutrient as a field
-     * The first element has the highest presence inside the micronutrient.
-     *
-     * @param micronutrientName - name of the micronutrient whose sources are returned
-     * @return sorted set of Presence objects that have the given micronutrient as a field
-     * @throws ElementNotFoundException - if micronutrient with given micronutrientName can't be found in database
-     */
     @Override
-    public SortedSet<Presence> sourcesOfMicronutrient(String micronutrientName) {
-        SortedSet<Presence> presences =
-                new TreeSet<>((Presence p1, Presence p2) -> Double.compare(p2.getAmount(), p1.getAmount()));
-        try(Statement stmt = conn.createStatement()) {
-            MicronutrientDao micronutrientDao = new MicronutrientDaoSQLImpl();
-            SourceDao sourceDao = new SourceDaoSQLImpl();
-            ResultSet results = stmt.executeQuery("SELECT * FROM presence WHERE micronutrient_id=" +
-                    micronutrientDao.searchByName(micronutrientName).getId());
-            while(results.next()) {
-                presences.add(new Presence(results.getInt("id"),
-                                           micronutrientDao.getById(results.getInt("micronutrient_id")),
-                                           sourceDao.getById(results.getInt("source_id")),
-                                           results.getDouble("amount")));
-            }
-        } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
-        }
-        return presences;
-    }
-
-    /**
-     * Returns Presence object from database based on given micronutrient name and source name,
-     * null if element does not exist.
-     *
-     * @param micronutrientName - name of the micronutrient in presence element
-     * @param sourceName        - name of the source to be found in presence element
-     * @return presence object with the given micronutrient name and source name, null if element does not exist
-     * @throws ElementNotFoundException - if element with given micronutrientName and sourceName can't be found in database
-     */
-    @Override
-    public Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName) {
+    public List<Presence> micronutrientsInSource(String sourceName) throws DaoException { //ordered in descending order
+        List<Presence> presences = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT FROM * ").append(getTableName()).append(" WHERE source=").
+                append(DaoFactory.sourceDao().searchByName(sourceName).getId()).
+                append(" ORDER BY amount DESC");
         Presence presence = null;
-        try(Statement stmt = conn.createStatement()) {
-            MicronutrientDao micronutrientDao = new MicronutrientDaoSQLImpl();
-            SourceDao sourceDao = new SourceDaoSQLImpl();
-            //again it would be faster if dao had getIdFromName, so we don't create unnecessary objects
-            ResultSet result = stmt.executeQuery("SELECT * FROM presence WHERE micronutrient_id=" +
-                    micronutrientDao.searchByName(micronutrientName).getId() + " AND source_id=" +
-                    sourceDao.searchByName(sourceName).getId());
-            if(result.next()) {
-                presence = new Presence(result.getInt("id"),
-                                        micronutrientDao.getById(result.getInt("micronutrient_id")),
-                                        sourceDao.getById(result.getInt("source_id")),
-                                        result.getDouble("amount"));
-            } else {
-                throw new ElementNotFoundException("Presence with " + micronutrientName + " and " + sourceName +
-                        " does not exist");
+        try(Statement stmt = getConnection().createStatement()) {
+            ResultSet rs = stmt.executeQuery(query.toString());
+            for(;;) {
+                presence = row2object(rs);
+                if(presence == null) break;
+                presences.add(presence);
             }
         } catch(SQLException e) {
-            System.out.println("Problem with database");
-            e.printStackTrace();
+            throw new DaoException(e.getMessage());
+        }
+        return presences;
+    }
+
+    @Override
+    public List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException {//refactorisat kao i onaj gore
+        List<Presence> presences = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT FROM * ").append(getTableName()).append(" WHERE source=").
+                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
+                append(" ORDER BY amount DESC");
+        Presence presence = null;
+        try(Statement stmt = getConnection().createStatement()) {
+            ResultSet rs = stmt.executeQuery(query.toString());
+            for(;;) {
+                presence = row2object(rs);
+                if(presence == null) break;
+                presences.add(presence);
+            }
+        } catch(SQLException e) {
+            throw new DaoException(e.getMessage());
+        }
+        return presences;
+    }
+
+    @Override
+    public Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName) throws DaoException {
+        Presence presence = null;
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
+                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
+                append(" AND source=").append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId());
+        try(Statement stmt = getConnection().createStatement()) {
+             ResultSet rs = stmt.executeQuery(query.toString());
+             if(rs.next()) {
+                 presence = row2object(rs);
+             } else {
+                 throw new DaoException("Element does not exist");
+             }
+        } catch(SQLException e) {
+            throw new DaoException(e.getMessage());
         }
         return presence;
     }
