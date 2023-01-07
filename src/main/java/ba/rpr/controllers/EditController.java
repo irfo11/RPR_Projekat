@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -42,9 +43,13 @@ public class EditController {
                 openEditWindow(choice, false);
                 DaoFactory.sourceDao().add(source);
             } else if(choice.equals("Micronutrient")) {
-                micronutrient = new Micronutrient(-1, "", "", false);
+                micronutrient = new Micronutrient(-1, "", "", false); //empty micronutrient to add
                 openEditWindow(choice, false);
                 DaoFactory.micronutrientDao().add(micronutrient);
+            } else if(choice.equals("Presence")) {
+                presence = new Presence(-1, new Micronutrient(), new Source(), 0); //empty presence to add
+                openEditWindow(choice, false);
+                DaoFactory.presenceDao().add(presence);
             }
             setupTableColumns(choice);
         } catch(IOException | DaoException e) {
@@ -61,6 +66,9 @@ public class EditController {
             } else if(choice.equals("Micronutrient")) {
                 micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
                 DaoFactory.micronutrientDao().delete(micronutrient.getId());
+            } else if(choice.equals("Presence")) {
+                presence = (Presence) editTableView.getSelectionModel().getSelectedItem();
+                DaoFactory.presenceDao().delete(presence.getId());
             }
         } catch(DaoException e) {
             handleException(e.getMessage());
@@ -75,12 +83,16 @@ public class EditController {
                 source = (Source) editTableView.getSelectionModel().getSelectedItem();
             } else if(choice.equals("Micronutrient")) {
                 micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
+            } else if(choice.equals("Presence")) {
+                presence = (Presence) editTableView.getSelectionModel().getSelectedItem();
             }
             openEditWindow(choice, true);
             if(choice.equals("Source")) {
                 DaoFactory.sourceDao().update(source.getId(), source);
             } else if(choice.equals("Micronutrient")) {
                 DaoFactory.micronutrientDao().update(micronutrient.getId(), micronutrient);
+            } else if(choice.equals("Presence")) {
+                DaoFactory.presenceDao().update(presence.getId(), presence);
             }
             setupTableColumns(choice);
         } catch(IOException | DaoException e) {
@@ -156,10 +168,12 @@ public class EditController {
             loader = new FXMLLoader(getClass().getResource("/fxml/micronutrientEdit.fxml"));
             loader.setController(new MicronutrientEditController(micronutrient, edit));
         } else if(choice.equals("Presence")) {
-            editWindow.setScene(FXMLLoader.load(getClass().getResource("/fxml/presenceEdit.fxml")));
+            loader = new FXMLLoader(getClass().getResource("/fxml/presenceEdit.fxml"));
+            loader.setController(new PresenceEditController(presence, edit));
         }
         editWindow.setScene(loader.load());
         editWindow.setResizable(false);
+        editWindow.initModality(Modality.APPLICATION_MODAL);
         editWindow.showAndWait();
     }
 
