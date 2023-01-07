@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,6 +23,9 @@ public class EditController {
     public Button editButton;
     public Button deleteButton;
 
+    public Source source = null;
+    public Micronutrient micronutrient = null;
+    public Presence presence = null;
     @FXML
     public void initialize() {
         editComboBox.getItems().setAll("Micronutrient", "Source", "Presence");
@@ -32,18 +36,56 @@ public class EditController {
 
     public void add(ActionEvent actionEvent) {
         try {
-            Stage addWindow = openEditWindow(editComboBox.getSelectionModel().getSelectedItem().toString());
-        } catch(IOException e) {
+            String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
+            if(choice.equals("Source")) {
+                source = new Source(-1, ""); //empty source to add
+                openEditWindow(choice, false);
+                DaoFactory.sourceDao().add(source);
+            } else if(choice.equals("Micronutrient")) {
+                micronutrient = new Micronutrient(-1, "", "", false);
+                openEditWindow(choice, false);
+                DaoFactory.micronutrientDao().add(micronutrient);
+            }
+            setupTableColumns(choice);
+        } catch(IOException | DaoException e) {
             handleException(e.getMessage());
         }
     }
 
     public void delete(ActionEvent actionEvent) {
-
+        String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
+        try {
+            if (choice.equals("Source")) {
+                source = (Source) editTableView.getSelectionModel().getSelectedItem();
+                DaoFactory.sourceDao().delete(source.getId());
+            } else if(choice.equals("Micronutrient")) {
+                micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
+                DaoFactory.micronutrientDao().delete(micronutrient.getId());
+            }
+        } catch(DaoException e) {
+            handleException(e.getMessage());
+        }
+        setupTableColumns(choice);
     }
 
     public void edit(ActionEvent actionEvent) {
-
+        try{
+            String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
+            if(choice.equals("Source")) {
+                source = (Source) editTableView.getSelectionModel().getSelectedItem();
+            } else if(choice.equals("Micronutrient")) {
+                micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
+            }
+            openEditWindow(choice, true);
+            if(choice.equals("Source")) {
+                DaoFactory.sourceDao().update(source.getId(), source);
+            } else if(choice.equals("Micronutrient")) {
+                DaoFactory.micronutrientDao().update(micronutrient.getId(), micronutrient);
+            }
+            setupTableColumns(choice);
+        } catch(IOException | DaoException e) {
+            handleException(e.getMessage());
+        }
     }
 
     public void setupEdit(ActionEvent actionEvent) {
@@ -66,7 +108,7 @@ public class EditController {
                 TableColumn<Micronutrient, Integer> id = new TableColumn<>("Id");
                 TableColumn<Micronutrient, String> name = new TableColumn<>("Name");
                 TableColumn<Micronutrient, String> type = new TableColumn<>("Type");
-                TableColumn<Micronutrient, String> role = new TableColumn<>("Role");
+                TableColumn<Micronutrient, Text> role = new TableColumn<>("Role"); //
                 id.setCellValueFactory(new PropertyValueFactory<Micronutrient, Integer>("id"));
                 name.setCellValueFactory(new PropertyValueFactory<Micronutrient, String>("name"));
                 type.setCellValueFactory(micronutrient -> {
@@ -76,6 +118,12 @@ public class EditController {
                 role.setCellValueFactory(new PropertyValueFactory<>("role"));
                 editTableView.getColumns().setAll(id, name, type, role);
                 editTableView.getItems().setAll(DaoFactory.micronutrientDao().getAll());
+                role.prefWidthProperty().bind( //so that the last column get all the leftover space
+                        editTableView.widthProperty()
+                                .subtract(id.widthProperty())
+                                .subtract(name.widthProperty())
+                                .subtract(type.widthProperty())
+                );
             } else if(choice.equals("Presence")) {
                 TableColumn<Presence, Integer> id = new TableColumn<>("Id");
                 TableColumn<Presence, String> micronutrient = new TableColumn<>("Micronutrient");
@@ -98,18 +146,21 @@ public class EditController {
         }
     }
 
-    public Stage openEditWindow(String choice) throws IOException {
+    public void openEditWindow(String choice, boolean edit) throws IOException {
         Stage editWindow = new Stage();
+        FXMLLoader loader = null;
         if(choice.equals("Source")) {
-            editWindow.setScene(FXMLLoader.load(getClass().getResource("/fxml/sourceEdit.fxml")));
+            loader = new FXMLLoader(getClass().getResource("/fxml/sourceEdit.fxml"));
+            loader.setController(new SourceEditController(source, edit));
         } else if(choice.equals("Micronutrient")) {
-            editWindow.setScene(FXMLLoader.load(getClass().getResource("/fxml/micronutrientEdit.fxml")));
+            loader = new FXMLLoader(getClass().getResource("/fxml/micronutrientEdit.fxml"));
+            loader.setController(new MicronutrientEditController(micronutrient, edit));
         } else if(choice.equals("Presence")) {
             editWindow.setScene(FXMLLoader.load(getClass().getResource("/fxml/presenceEdit.fxml")));
         }
+        editWindow.setScene(loader.load());
         editWindow.setResizable(false);
-        editWindow.show();
-        return editWindow;
+        editWindow.showAndWait();
     }
 
     public void handleException(String msg) {
