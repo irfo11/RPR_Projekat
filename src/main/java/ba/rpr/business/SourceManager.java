@@ -59,5 +59,12 @@ public class SourceManager {
         return DaoFactory.sourceDao().getAll();
     }
 
-
+    public Source searchByName(String name) throws DaoException {
+        if(name == null || name.length() < 3 || name.length() > 45)
+            throw new DaoException("Source must have name length between 3 to 45 characters");
+        Source source = DaoFactory.sourceDao().searchByName(name);
+        if(source == null)
+            throw new DaoException("Source with name=" + name + " does not exist");
+        return source;
+    }
 }
