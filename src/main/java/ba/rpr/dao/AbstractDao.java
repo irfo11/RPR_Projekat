@@ -1,9 +1,7 @@
 package ba.rpr.dao;
 
 import java.sql.*;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import ba.rpr.dao.exceptions.DaoException;
 
@@ -94,6 +92,24 @@ public abstract class AbstractDao<T> implements Dao<T>{
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
+            throw new DaoException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<T> getAll() throws DaoException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM ").append(getTableName());
+        try(Statement stmt = getConnection().createStatement()) {
+            List<T> list = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery(query.toString());
+            for(;;) {
+                T object = row2object(rs);
+                if(object == null) break;
+                list.add(object);
+            }
+            return list;
+        } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
     }

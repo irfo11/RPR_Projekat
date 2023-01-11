@@ -41,25 +41,6 @@ public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implemen
     }
 
     @Override
-    public List<Micronutrient> getAll() throws DaoException{ //provjeri mozel bolje row2object
-        List<Micronutrient> micronutrients = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName()).append(" ORDER BY name");
-        try(Statement stmt = getConnection().createStatement()) {
-            ResultSet rs = stmt.executeQuery(query.toString());
-            Micronutrient micronutrient = null;
-            for(;;) {
-                micronutrient = row2object(rs);
-                if(micronutrient == null) break;
-                micronutrients.add(micronutrient);
-            }
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
-        return micronutrients;
-    }
-
-    @Override
     public Micronutrient searchByName(String name) throws DaoException {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE name=?");

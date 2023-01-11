@@ -40,25 +40,6 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     }
 
     @Override
-    public List<Presence> getAll() throws DaoException {
-        List<Presence> presences = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName());
-        try(Statement stmt = getConnection().createStatement()) {
-            ResultSet rs = stmt.executeQuery(query.toString());
-            Presence presence = null;
-            for(;;) {
-                presence = row2object(rs);
-                if(presence == null) break;
-                presences.add(presence);
-            }
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
-        return presences;
-    }
-
-    @Override
     public List<Presence> micronutrientsInSource(String sourceName) throws DaoException { //ordered in descending order
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
