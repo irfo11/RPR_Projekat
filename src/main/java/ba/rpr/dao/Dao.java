@@ -11,11 +11,11 @@ import java.util.List;
 
 public interface Dao<T> {
     /**
-     * Returns entity from database based on given id
+     * Returns entity from database based on given id, null if element with given id can't be found in database
      *
      * @param id - the id of the entity
      * @return entity that has the same id
-     * @throws DaoException - if element with given id can't be found in database
+     * @throws DaoException - if there are problems with database server
      */
     T getById(int id) throws DaoException;
 
@@ -23,7 +23,7 @@ public interface Dao<T> {
      * Adds entity to database
      *
      * @param item - entity to be added to database
-     * @throws DaoException - if element already exist, based on user defined property
+     * @throws DaoException - if there are problems with database server
      */
     void add(T item) throws DaoException;
 
@@ -31,7 +31,7 @@ public interface Dao<T> {
      * Deletes entity from database based on id
      *
      * @param id - id of entity to be deleted
-     * @throws DaoException - if element with given id can't be found in database
+     * @throws DaoException - if there are problems with database server
      */
     void delete(int id) throws DaoException;
 
@@ -40,17 +40,16 @@ public interface Dao<T> {
      *
      * @param id - id of the entity to be updated
      * @param item - object that contains updates for the entity
-     * @throws DaoException - if element with given id can't be found in database or
-     *                        if element that we are updating changes one of its unique columns
-     *                        to a value that already exist
+     * @throws DaoException - if there are problems with database server
      */
     void update(int id, T item) throws DaoException;
 
     /**
-     * Returns all elements in table sorted by user defined column
+     * Returns all elements in table
      *
-     * @return all elements in table sorted
+     * @return all elements in table
+     * @throws DaoException - if there are problems with database server
      */
-    List<T> getAll() throws DaoException;//sorting done by sql
+    List<T> getAll() throws DaoException;
 
 }
