@@ -7,7 +7,6 @@ import java.util.Properties;
 
 import ba.rpr.dao.exceptions.DaoException;
 
-/*svaka sql implementacija ce imati svoj string (ovo je vezano za singleton konekciju)*/
 public abstract class AbstractDao<T> implements Dao<T>{
 
     private static Connection conn;
@@ -42,17 +41,14 @@ public abstract class AbstractDao<T> implements Dao<T>{
 
     @Override
     public T getById(int id) throws DaoException{
-        T object = null;
         try(Statement stmt = getConnection().createStatement()) {
             StringBuilder query = new StringBuilder();
             query.append("SELECT * FROM ").append(tableName).append(" WHERE id=").append(id);
             ResultSet result = stmt.executeQuery(query.toString());
-            object = row2object(result);
-            if(object == null) throw new DaoException("Element does not exist");
+            return row2object(result);
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return object;
     }
 
     @Override
@@ -62,16 +58,14 @@ public abstract class AbstractDao<T> implements Dao<T>{
         StringBuilder query = new StringBuilder();
         query.append("INSERT INTO ").append(tableName).append(columns.getKey()).append("VALUES").append(columns.getValue());
         try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
-            int i=0;
+            int i=1;
             for(Map.Entry<String, Object> entry: row.entrySet()) {
-                if(entry.getValue().equals("id")) continue;
+                if(entry.getKey().equals("id")) continue;
                 stmt.setObject(i++, entry.getValue());
             }
             stmt.executeUpdate();
         } catch(SQLException e) {
-            //sql is not case-sensitive, when searching if there is column with same name
-            if(e.getErrorCode() == 1062) throw new DaoException("Element already exists");
-            else throw new DaoException(e.getMessage());
+            throw new DaoException(e.getMessage());
         }
     }
 
@@ -80,10 +74,7 @@ public abstract class AbstractDao<T> implements Dao<T>{
         try(Statement stmt = getConnection().createStatement()){
             StringBuilder query = new StringBuilder();
             query.append("DELETE FROM ").append(tableName).append(" WHERE id=").append(id);
-            if(stmt.executeUpdate(query.toString()) == 0) {
-                //this means that 0 rows were affected
-                throw new DaoException("Element does not exist");
-            }
+            stmt.executeUpdate(query.toString());
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
@@ -94,18 +85,16 @@ public abstract class AbstractDao<T> implements Dao<T>{
         Map<String, Object> row = object2row(item);
         String columns = prepareUpdateParts(row);
         StringBuilder query = new StringBuilder();
-        query.append("UPDATE ").append(tableName).append(columns).append("WHERE id=").append(id);
+        query.append("UPDATE ").append(tableName).append(" SET").append(columns).append("WHERE id=").append(id);
         try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())){
-            int i=0;
+            int i=1;
             for(Map.Entry<String, Object> entry: row.entrySet()) {
                 if(entry.getKey().equals("id")) continue;
                 stmt.setObject(i++, entry.getValue());
             }
-            if(stmt.executeUpdate() == 0)
-                throw new DaoException("Element does not exist");
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            if(e.getErrorCode() == 1062) throw new DaoException("Element already exists");
-            else throw new DaoException(e.getMessage());
+            throw new DaoException(e.getMessage());
         }
     }
 
