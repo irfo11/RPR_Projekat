@@ -20,18 +20,17 @@ public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implemen
 
     @Override
     public Micronutrient row2object(ResultSet rs) throws DaoException{
-        Micronutrient micronutrient = null;
         try {
-            if(rs.next()) {
-                micronutrient = new Micronutrient(rs.getInt("id"),
-                                                  rs.getString("name"),
-                                                  rs.getString("role"),
-                                                  rs.getBoolean("isVitamin"));
-            }
+            if(rs.next())
+                return new Micronutrient(rs.getInt("id"),
+                                         rs.getString("name"),
+                                         rs.getString("role"),
+                                         rs.getBoolean("isVitamin"));
+            else
+                return null;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return micronutrient;
     }
 
     @Override
@@ -48,13 +47,11 @@ public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implemen
     public Micronutrient searchByName(String name) throws DaoException {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE name=?");
-        Micronutrient micronutrient = null;
         try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
             stmt.setString(1, name);
-            micronutrient = row2object(stmt.executeQuery()); //ako nema vraca se null
+            return row2object(stmt.executeQuery());
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return micronutrient;
     }
 }
