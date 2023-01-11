@@ -1,11 +1,9 @@
 package ba.rpr.dao;
 
-/* vjerovatno ce trebati promijeniti pitaj*/
-
 public class DaoFactory {
-    private static MicronutrientDao micronutrientDao = new MicronutrientDaoSQLImpl();
-    private static SourceDao sourceDao = new SourceDaoSQLImpl();
-    private static PresenceDao presenceDao = new PresenceDaoSQLImpl();
+    private static final MicronutrientDao micronutrientDao = MicronutrientDaoSQLImpl.getInstance();
+    private static final SourceDao sourceDao = SourceDaoSQLImpl.getInstance();
+    private static final PresenceDao presenceDao = PresenceDaoSQLImpl.getInstance();
     private DaoFactory() {}
     public static MicronutrientDao micronutrientDao() {
         return micronutrientDao;

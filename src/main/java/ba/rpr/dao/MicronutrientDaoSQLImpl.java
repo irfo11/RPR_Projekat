@@ -3,19 +3,23 @@ package ba.rpr.dao;
 import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Micronutrient;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
 public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implements MicronutrientDao{
-
-    public MicronutrientDaoSQLImpl() {
+    private static MicronutrientDaoSQLImpl instance = null;
+    private MicronutrientDaoSQLImpl() {
         super("micronutrients");
     }
 
+    public static MicronutrientDaoSQLImpl getInstance() {
+        if(instance == null)
+            instance = new MicronutrientDaoSQLImpl();
+        return instance;
+    }
+
     @Override
-    public Micronutrient row2object(ResultSet rs) throws DaoException{ //vraca null ako nema nista jer je jednostavnije koristiti
-                                                                        //za ostale funkcije
+    public Micronutrient row2object(ResultSet rs) throws DaoException{
         Micronutrient micronutrient = null;
         try {
             if(rs.next()) {

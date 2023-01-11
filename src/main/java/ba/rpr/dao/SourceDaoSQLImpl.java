@@ -11,11 +11,16 @@ import java.util.*;
  * SQL implementation for SourceDao
  */
 public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
-
-    public SourceDaoSQLImpl() {
+    private static SourceDaoSQLImpl instance = null;
+    private SourceDaoSQLImpl() {
         super("sources");
     }
 
+    public static SourceDaoSQLImpl getInstance() {
+        if(instance == null)
+            instance = new SourceDaoSQLImpl();
+        return instance;
+    }
     @Override
     public Source row2object(ResultSet rs) throws DaoException { //return null ako nema elementa
         Source source = null;
