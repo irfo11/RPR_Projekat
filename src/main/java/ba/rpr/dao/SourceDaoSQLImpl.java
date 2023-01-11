@@ -3,7 +3,6 @@ package ba.rpr.dao;
 import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Source;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -22,16 +21,15 @@ public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
         return instance;
     }
     @Override
-    public Source row2object(ResultSet rs) throws DaoException { //return null ako nema elementa
-        Source source = null;
+    public Source row2object(ResultSet rs) throws DaoException {
         try{
-            if(rs.next()) {
-                source = new Source(rs.getInt("id"), rs.getString("name"));
-            }
+            if(rs.next())
+                return new Source(rs.getInt("id"), rs.getString("name"));
+            else
+                return null;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return source;
     }
 
     @Override
@@ -46,13 +44,11 @@ public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
     public Source searchByName(String name) throws DaoException {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE name=?");
-        Source source = null;
         try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
             stmt.setString(1, name);
-            source = row2object(stmt.executeQuery());
+            return row2object(stmt.executeQuery());
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return source;
     }
 }
