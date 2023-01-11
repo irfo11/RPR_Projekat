@@ -12,7 +12,7 @@ public interface SourceDao extends Dao<Source>{
      *
      * @param name - name of the source to be returned
      * @return source object with the same name given as parameter, null it there is no element with the same name
-     * @throws DaoException - if element with given name can't be found in database
+     * @throws DaoException - if there are problems with database server
      */
     Source searchByName(String name) throws DaoException;
 }
