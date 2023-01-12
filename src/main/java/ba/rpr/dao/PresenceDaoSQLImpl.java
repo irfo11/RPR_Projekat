@@ -19,19 +19,15 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     }
 
     @Override
-    public Presence row2object(ResultSet rs) throws DaoException { //return null if not found
-        Presence presence = null;
+    public Presence row2object(ResultSet rs) throws DaoException {
         try {
-            if(rs.next()) {
-                presence = new Presence(rs.getInt("id"),
+            return new Presence(rs.getInt("id"),
                         DaoFactory.micronutrientDao().getById(rs.getInt("micronutrient")),
                         DaoFactory.sourceDao().getById(rs.getInt("source")),
                         rs.getDouble("amount"));
-            }
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return presence;
     }
 
     @Override
@@ -45,64 +41,47 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     }
 
     @Override
-    public List<Presence> micronutrientsInSource(String sourceName) throws DaoException { //ordered in descending order
+    public List<Presence> micronutrientsInSource(String sourceName) throws DaoException {
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE source=").
-                append(DaoFactory.sourceDao().searchByName(sourceName).getId()).
-                append(" ORDER BY amount DESC");
-        Presence presence = null;
+                append(DaoFactory.sourceDao().searchByName(sourceName).getId());
         try(Statement stmt = getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(query.toString());
-            for(;;) {
-                presence = row2object(rs);
-                if(presence == null) break;
-                presences.add(presence);
-            }
+            while(rs.next()) presences.add(row2object(rs));
+            return presences;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return presences;
     }
 
     @Override
-    public List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException {//refactorisat kao i onaj gore
+    public List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException {
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
-                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
-                append(" ORDER BY amount DESC");
-        Presence presence = null;
+                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId());
         try(Statement stmt = getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(query.toString());
-            for(;;) {
-                presence = row2object(rs);
-                if(presence == null) break;
-                presences.add(presence);
-            }
+            while(rs.next()) presences.add(row2object(rs));
+            return presences;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return presences;
     }
 
     @Override
     public Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName) throws DaoException {
-        Presence presence = null;
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
                 append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
                 append(" AND source=").append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId());
         try(Statement stmt = getConnection().createStatement()) {
              ResultSet rs = stmt.executeQuery(query.toString());
-             if(rs.next()) {
-                 presence = row2object(rs);
-             } else {
-                 throw new DaoException("Element does not exist");
-             }
+             if(rs.next()) return row2object(rs);
+             else return null;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
-        return presence;
     }
 }

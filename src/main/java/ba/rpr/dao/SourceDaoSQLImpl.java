@@ -23,10 +23,7 @@ public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
     @Override
     public Source row2object(ResultSet rs) throws DaoException {
         try{
-            if(rs.next())
-                return new Source(rs.getInt("id"), rs.getString("name"));
-            else
-                return null;
+            return new Source(rs.getInt("id"), rs.getString("name"));
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
@@ -46,7 +43,9 @@ public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE name=?");
         try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
             stmt.setString(1, name);
-            return row2object(stmt.executeQuery());
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()) return row2object(rs);
+            else return null;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }

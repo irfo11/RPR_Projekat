@@ -10,24 +10,22 @@ import java.util.List;
  */
 public interface PresenceDao extends Dao<Presence> {
     /**
-     * Returns a sorted list of Presence objects that have the given source as a field.
-     * The first element has the highest presence inside the source.
+     * Returns a list of Presence objects that have the given source as a field.
      *
      * @param sourceName - name of the source whose micronutrients are returned
-     * @return sorted list of Presence objects that have the given source as a field
-     * @throws DaoException - if source with the given sourceName can't be found in database
+     * @return list of Presence objects that have the given source as a field
+     * @throws DaoException - if there are problems with database server
      */
-    List<Presence> micronutrientsInSource(String sourceName) throws DaoException; //sorting done by sql
+    List<Presence> micronutrientsInSource(String sourceName) throws DaoException;
 
     /**
-     * Returns a sorted list of Presence objects that have the given micronutrient as a field
-     * The first element has the highest presence inside the micronutrient.
+     * Returns a list of Presence objects that have the given micronutrient as a field
      *
      * @param micronutrientName - name of the micronutrient whose sources are returned
-     * @return sorted list of Presence objects that have the given micronutrient as a field
-     * @throws DaoException - if micronutrient with given micronutrientName can't be found in database
+     * @return list of Presence objects that have the given micronutrient as a field
+     * @throws DaoException - if there are problems with the database server
      */
-    List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException; //sorting done by sql
+    List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException;
 
     /**
      * Returns Presence object from database based on given micronutrient name and source name
@@ -35,8 +33,7 @@ public interface PresenceDao extends Dao<Presence> {
      * @param micronutrientName - name of the micronutrient in presence element
      * @param sourceName - name of the source to be found in presence element
      * @return presence object with the given micronutrient name and source name, null if element does not exist
-     * @throws DaoException - if micronutrient with given micronutrientName or source with given sourceName
-     * or presence element with given names can't be found in database
+     * @throws DaoException - if there are problems with database server
      */
     Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName) throws DaoException;
 }

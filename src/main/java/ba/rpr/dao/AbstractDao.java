@@ -39,11 +39,12 @@ public abstract class AbstractDao<T> implements Dao<T>{
 
     @Override
     public T getById(int id) throws DaoException{
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM ").append(tableName).append(" WHERE id=").append(id);
         try(Statement stmt = getConnection().createStatement()) {
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT * FROM ").append(tableName).append(" WHERE id=").append(id);
-            ResultSet result = stmt.executeQuery(query.toString());
-            return row2object(result);
+            ResultSet rs = stmt.executeQuery(query.toString());
+            if(rs.next()) return row2object(rs);
+            else return null;
         } catch (SQLException e) {
             throw new DaoException(e.getMessage());
         }
@@ -69,9 +70,9 @@ public abstract class AbstractDao<T> implements Dao<T>{
 
     @Override
     public void delete(int id) throws DaoException{
+        StringBuilder query = new StringBuilder();
+        query.append("DELETE FROM ").append(tableName).append(" WHERE id=").append(id);
         try(Statement stmt = getConnection().createStatement()){
-            StringBuilder query = new StringBuilder();
-            query.append("DELETE FROM ").append(tableName).append(" WHERE id=").append(id);
             stmt.executeUpdate(query.toString());
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
@@ -103,11 +104,7 @@ public abstract class AbstractDao<T> implements Dao<T>{
         try(Statement stmt = getConnection().createStatement()) {
             List<T> list = new ArrayList<>();
             ResultSet rs = stmt.executeQuery(query.toString());
-            for(;;) {
-                T object = row2object(rs);
-                if(object == null) break;
-                list.add(object);
-            }
+            while(rs.next()) list.add(row2object(rs));
             return list;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
