@@ -1,7 +1,9 @@
 package ba.rpr.dao;
 
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Micronutrient;
 import ba.rpr.domain.Presence;
+import ba.rpr.domain.Source;
 
 import java.sql.*;
 
@@ -41,11 +43,11 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     }
 
     @Override
-    public List<Presence> micronutrientsInSource(String sourceName) throws DaoException {
+    public List<Presence> micronutrientsInSource(Source source) throws DaoException {
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE source=").
-                append(DaoFactory.sourceDao().searchByName(sourceName).getId());
+                append(source.getId());
         try(Statement stmt = getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(query.toString());
             while(rs.next()) presences.add(row2object(rs));
@@ -56,30 +58,15 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
     }
 
     @Override
-    public List<Presence> sourcesOfMicronutrient(String micronutrientName) throws DaoException {
+    public List<Presence> sourcesOfMicronutrient(Micronutrient micronutrient) throws DaoException {
         List<Presence> presences = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
-                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId());
+                append(micronutrient.getId());
         try(Statement stmt = getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery(query.toString());
             while(rs.next()) presences.add(row2object(rs));
             return presences;
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
-    }
-
-    @Override
-    public Presence searchByMicronutrientAndSource(String micronutrientName, String sourceName) throws DaoException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
-                append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId()).
-                append(" AND source=").append(DaoFactory.micronutrientDao().searchByName(micronutrientName).getId());
-        try(Statement stmt = getConnection().createStatement()) {
-             ResultSet rs = stmt.executeQuery(query.toString());
-             if(rs.next()) return row2object(rs);
-             else return null;
         } catch(SQLException e) {
             throw new DaoException(e.getMessage());
         }
