@@ -1,7 +1,10 @@
 package ba.rpr.controllers;
 
-import ba.rpr.dao.DaoFactory;
+import ba.rpr.business.MicronutrientManager;
+import ba.rpr.business.PresenceManager;
+import ba.rpr.business.SourceManager;
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Source;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -15,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import ba.rpr.domain.Presence;
@@ -37,9 +41,14 @@ public class HomeController {
     public HBox micronutrientInfoHBox;
     public TextArea micronutrientInfoTextArea;
 
+    private final PresenceManager presenceManager = new PresenceManager();
+    private final MicronutrientManager micronutrientManager = new MicronutrientManager();
+    private final SourceManager sourceManager = new SourceManager();
+
     @FXML
     public void initialize() {
         hideMicronutrientInfo();
+        presenceTableView.setPlaceholder(new Label("Please enter a name to see presences"));
     }
 
     public void openEditWindow(ActionEvent actionEvent) throws IOException {
@@ -57,21 +66,26 @@ public class HomeController {
         try {
             hideMicronutrientInfo();
             String selectedRadioButtonText = ((RadioButton) searchGroup.getSelectedToggle()).getText();
-            List<Presence> presenceList = null;
+            List<Presence> presenceList = new ArrayList<>(); //if micronutrient or source is null, empty list will be returned
             if (selectedRadioButtonText.equals("Source")) {
                 nameTableColumn.setCellValueFactory(
                         (Callback<TableColumn.CellDataFeatures<Presence, String>, ObservableValue<String>>) presenceM ->
                                 new ReadOnlyStringWrapper(presenceM.getValue().getMicronutrient().getName()));
-                presenceList = DaoFactory.presenceDao().micronutrientsInSource(nameTextField.getText());
+                Source source = sourceManager.searchByName(nameTextField.getText());
+                if(source != null) presenceList = presenceManager.micronutrientsInSource(source);
             } else if (selectedRadioButtonText.equals("Micronutrient")) {
-                showMicronutrientInfo(DaoFactory.micronutrientDao().searchByName(nameTextField.getText()));
+                Micronutrient micronutrient = micronutrientManager.searchByName(nameTextField.getText());
                 nameTableColumn.setCellValueFactory(
                         (Callback<TableColumn.CellDataFeatures<Presence, String>, ObservableValue<String>>) presenceS ->
                                 new ReadOnlyStringWrapper(presenceS.getValue().getSource().getName()));
-                presenceList = DaoFactory.presenceDao().sourcesOfMicronutrient(nameTextField.getText());
+                if(micronutrient != null) {
+                    showMicronutrientInfo(micronutrient);
+                    presenceList = presenceManager.sourcesOfMicronutrient(micronutrient);
+                }
             }
             amountTableColumn.setCellValueFactory(new PropertyValueFactory<Presence, Double>("amount"));
-            presenceTableView.getItems().setAll(presenceList);
+            if(!presenceList.isEmpty()) presenceTableView.getItems().setAll(presenceList);
+            else presenceTableView.setPlaceholder(new Label("No presence found for given " + selectedRadioButtonText));
             presenceTableView.refresh();
         } catch(DaoException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
