@@ -1,32 +1,30 @@
 package ba.rpr.business;
 
-import ba.rpr.dao.Dao;
 import ba.rpr.dao.DaoFactory;
 import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Source;
 
 import java.util.List;
 
+/**
+ * Manager class for Source, which contains business logic
+ */
 public class SourceManager {
-
+    private void validateName(String name) throws DaoException{
+        if(name == null || name.length() < 3 || name.length() > 45)
+            throw new DaoException("Source must have name length between 3 to 45 characters");
+    }
     public Source getById(int id) throws DaoException{
-        try {
-            return DaoFactory.sourceDao().getById(id);
-        } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Source with id=" + id + " does not exist");
-            throw e;
-        }
+        return DaoFactory.sourceDao().getById(id);
     }
 
     public void add(Source source) throws DaoException {
-        if(source == null || source.getName().length() < 3 || source.getName().length() > 45)
-            throw new DaoException("Source must have name length between 3 to 45 characters");
+        validateName(source.getName());
         try {
             DaoFactory.sourceDao().add(source);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element already exists"))
-                throw new DaoException("Cannot add source, because source with the same name already exists");
+            if(e.getMessage().contains("Duplicate entry"))
+                throw new DaoException("Cannot add Source, because Source with the same name already exists");
             throw e;
         }
     }
@@ -35,22 +33,20 @@ public class SourceManager {
         try {
             DaoFactory.sourceDao().delete(id);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Source with id=" + id + " does not exist");
+            if(e.getMessage().contains("FOREIGN KEY"))
+                throw new DaoException("Cannot delete Source, because it is contained inside a Presence/s. " +
+                        "First delete the Presence element/s.");
             throw e;
         }
     }
 
     public void update(int id, Source source) throws DaoException{
-        if(source == null || source.getName().length() < 3 || source.getName().length() > 45)
-            throw new DaoException("Source must have name length between 3 to 45 characters");
+        validateName(source.getName());
         try {
             DaoFactory.sourceDao().update(id, source);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Source with id=" + id + " does not exist");
-            else if(e.getMessage().equals("Element already exists"))
-                throw new DaoException("Cannot update source, because source with the same name already exists");
+            if(e.getMessage().contains("Duplicate entry"))
+                throw new DaoException("Cannot update Source, because Source with the same name already exists");
             throw e;
         }
     }
@@ -60,11 +56,6 @@ public class SourceManager {
     }
 
     public Source searchByName(String name) throws DaoException {
-        if(name == null || name.length() < 3 || name.length() > 45)
-            throw new DaoException("Source must have name length between 3 to 45 characters");
-        Source source = DaoFactory.sourceDao().searchByName(name);
-        if(source == null)
-            throw new DaoException("Source with name=" + name + " does not exist");
-        return source;
+        return DaoFactory.sourceDao().searchByName(name);
     }
 }
