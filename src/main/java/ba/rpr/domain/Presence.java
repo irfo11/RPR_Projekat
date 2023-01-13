@@ -3,7 +3,7 @@ package ba.rpr.domain;
 /**
  * Shows the source of a micronutrient and the amount of a micronutrient (represented in mg) inside 100 grams of the source
  */
-public class Presence {
+public class Presence implements Idable{
     private int id;
     private Micronutrient micronutrient;
     private Source source;

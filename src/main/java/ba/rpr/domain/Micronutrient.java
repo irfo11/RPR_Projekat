@@ -3,7 +3,7 @@ package ba.rpr.domain;
 /**
  * Class used to represent single micronutrient record from database
  */
-public class Micronutrient {
+public class Micronutrient implements Idable{
     private int id;
     private String name;
     private String role;

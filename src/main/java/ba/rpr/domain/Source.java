@@ -3,7 +3,7 @@ package ba.rpr.domain;
 /**
  * class used to represent single source record from database
  */
-public class Source {
+public class Source implements Idable{
     private int id;
     private String name;
 
