@@ -11,7 +11,7 @@ import java.util.*;
 
 public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements PresenceDao {
     private static PresenceDaoSQLImpl instance = null;
-    public PresenceDaoSQLImpl() {
+    private PresenceDaoSQLImpl() {
         super("presence");
     }
     public static PresenceDaoSQLImpl getInstance() {
