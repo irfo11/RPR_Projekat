@@ -6,28 +6,28 @@ import ba.rpr.domain.Micronutrient;
 
 import java.util.List;
 
+/**
+ * Manager class for Micronutrient, which contains business logic
+ */
 public class MicronutrientManager {
+    private void validateName(String name) throws DaoException {
+        if(name == null || name.length() < 1 || name.length() > 45)
+            throw new DaoException("Micronutrient must have name length between 1 to 45 characters");
+        if(name.toLowerCase().contains("vitamin"))
+            throw new DaoException("Micronutrient does not need to have 'vitamin' in its name");
+    }
+
     public Micronutrient getById(int id) throws DaoException {
-        try {
-            return DaoFactory.micronutrientDao().getById(id);
-        } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Micronutrient with id=" + id + " does not exist");
-            throw e;
-        }
+        return DaoFactory.micronutrientDao().getById(id);
     }
 
     public void add(Micronutrient micronutrient) throws DaoException {
-        if(micronutrient == null || micronutrient.getName().length() < 1 ||micronutrient.getName().length() > 45)
-            throw new DaoException("Micronutrient must have name length between 3 to 45 characters");
-        for(String token: micronutrient.getName().split(" "))
-            if(token.equalsIgnoreCase("vitamin"))
-                throw new DaoException("Micronutrient does not need 'vitamin' in its name");
+        validateName(micronutrient.getName());
         try {
             DaoFactory.micronutrientDao().add(micronutrient);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element already exists"))
-                throw new DaoException("Cannot add micronutrient, because micronutrient with the same name already exists");
+            if(e.getMessage().contains("Duplicate entry"))
+                throw new DaoException("Cannot add micronutrient, because Micronutrient with the same name already exists");
             throw e;
         }
     }
@@ -36,25 +36,20 @@ public class MicronutrientManager {
         try {
             DaoFactory.micronutrientDao().delete(id);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Micronutrient with id=" + id + " does not exist");
+            if(e.getMessage().contains("FOREIGN KEY"))
+                throw new DaoException("Cannot delete Micronutrient, because it is contained inside a Presence/s. " +
+                        "First delete the Presence element/s.");
             throw e;
         }
     }
 
     public void update(int id, Micronutrient micronutrient) throws DaoException {
-        if(micronutrient == null || micronutrient.getName().length() < 1 ||micronutrient.getName().length() > 45)
-            throw new DaoException("Micronutrient must have name length between 3 to 45 characters");
-        for(String token: micronutrient.getName().split(" "))
-            if(token.equalsIgnoreCase("vitamin"))
-                throw new DaoException("Micronutrient does not need 'vitamin' in its name");
+        validateName(micronutrient.getName());
         try {
             DaoFactory.micronutrientDao().update(id, micronutrient);
         } catch(DaoException e) {
-            if(e.getMessage().equals("Element does not exist"))
-                throw new DaoException("Micronutrient with id=" + id + " does not exist");
-            else if(e.getMessage().equals("Element already exists"))
-                throw new DaoException("Cannot add micronutrient, because micronutrient with the same name already exists");
+            if(e.getMessage().contains("Duplicate entry"))
+                throw new DaoException("Cannot update Micronutrient, because Micronutrient with the same name already exists");
             throw e;
         }
     }
@@ -64,17 +59,7 @@ public class MicronutrientManager {
     }
 
     public Micronutrient searchByName(String name) throws DaoException {
-        if(name == null || name.length() < 1 || name.length() > 45)
-            throw new DaoException("Micronutrient must have name length between 3 to 45 characters");
-        for(String token: name.split(" "))
-            if(token.equalsIgnoreCase("vitamin"))
-                throw new DaoException("Micronutrient does not need 'vitamin' in its name");
-        if(name == null || name.length() == 0 || name.split(" ").length > 1)
-            throw new DaoException("Micronutrient name must be one word, do not add vitamin before name");
-        Micronutrient micronutrient = DaoFactory.micronutrientDao().searchByName(name);
-        if(micronutrient == null)
-            throw new DaoException("Micronutrient with the name=" + name + " does not exist");
-        return micronutrient;
+        return DaoFactory.micronutrientDao().searchByName(name);
     }
 
 }
