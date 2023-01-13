@@ -76,7 +76,7 @@
                         </HBox>
                         <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                            <children>
-                              <RadioButton minWidth="-Infinity" mnemonicParsing="false" text="Micronutrient">
+                              <RadioButton minWidth="-Infinity" mnemonicParsing="false" selected="true" text="Micronutrient">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="searchGroup" />
                                  </toggleGroup>
