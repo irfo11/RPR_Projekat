@@ -1,7 +1,11 @@
 package ba.rpr.controllers;
 
+import ba.rpr.business.MicronutrientManager;
+import ba.rpr.business.PresenceManager;
+import ba.rpr.business.SourceManager;
 import ba.rpr.dao.DaoFactory;
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Idable;
 import ba.rpr.domain.Micronutrient;
 import ba.rpr.domain.Presence;
 import ba.rpr.domain.Source;
@@ -16,6 +20,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class EditController {
     public ComboBox editComboBox;
@@ -24,9 +29,10 @@ public class EditController {
     public Button editButton;
     public Button deleteButton;
 
-    public Source source = null;
-    public Micronutrient micronutrient = null;
-    public Presence presence = null;
+    private final SourceManager sourceManager = new SourceManager();
+    private final MicronutrientManager micronutrientManager = new MicronutrientManager();
+    private final PresenceManager presenceManager = new PresenceManager();
+
     @FXML
     public void initialize() {
         editComboBox.getItems().setAll("Micronutrient", "Source", "Presence");
@@ -36,68 +42,31 @@ public class EditController {
     }
 
     public void add(ActionEvent actionEvent) {
-        try {
-            String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
-            if(choice.equals("Source")) {
-                source = new Source(-1, ""); //empty source to add
-                openEditWindow(choice, false);
-                DaoFactory.sourceDao().add(source);
-            } else if(choice.equals("Micronutrient")) {
-                micronutrient = new Micronutrient(-1, "", "", false); //empty micronutrient to add
-                openEditWindow(choice, false);
-                DaoFactory.micronutrientDao().add(micronutrient);
-            } else if(choice.equals("Presence")) {
-                presence = new Presence(-1, new Micronutrient(), new Source(), 0); //empty presence to add
-                openEditWindow(choice, false);
-                DaoFactory.presenceDao().add(presence);
-            }
-            setupTableColumns(choice);
-        } catch(IOException | DaoException e) {
-            handleException(e.getMessage());
-        }
+        String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
+        openEditWindow(choice, null);
+        setupTableColumns(choice);
     }
 
     public void delete(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         try {
             if (choice.equals("Source")) {
-                source = (Source) editTableView.getSelectionModel().getSelectedItem();
-                DaoFactory.sourceDao().delete(source.getId());
+                sourceManager.delete(((Source) editTableView.getSelectionModel().getSelectedItem()).getId());
             } else if(choice.equals("Micronutrient")) {
-                micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
-                DaoFactory.micronutrientDao().delete(micronutrient.getId());
+                micronutrientManager.delete(((Micronutrient) editTableView.getSelectionModel().getSelectedItem()).getId());
             } else if(choice.equals("Presence")) {
-                presence = (Presence) editTableView.getSelectionModel().getSelectedItem();
-                DaoFactory.presenceDao().delete(presence.getId());
+                presenceManager.delete(((Presence) editTableView.getSelectionModel().getSelectedItem()).getId());
             }
+            setupTableColumns(choice);
         } catch(DaoException e) {
-            handleException(e.getMessage());
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
-        setupTableColumns(choice);
     }
 
     public void edit(ActionEvent actionEvent) {
-        try{
-            String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
-            if(choice.equals("Source")) {
-                source = (Source) editTableView.getSelectionModel().getSelectedItem();
-            } else if(choice.equals("Micronutrient")) {
-                micronutrient = (Micronutrient) editTableView.getSelectionModel().getSelectedItem();
-            } else if(choice.equals("Presence")) {
-                presence = (Presence) editTableView.getSelectionModel().getSelectedItem();
-            }
-            openEditWindow(choice, true);
-            if(choice.equals("Source")) {
-                DaoFactory.sourceDao().update(source.getId(), source);
-            } else if(choice.equals("Micronutrient")) {
-                DaoFactory.micronutrientDao().update(micronutrient.getId(), micronutrient);
-            } else if(choice.equals("Presence")) {
-                DaoFactory.presenceDao().update(presence.getId(), presence);
-            }
-            setupTableColumns(choice);
-        } catch(IOException | DaoException e) {
-            handleException(e.getMessage());
-        }
+        String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
+        openEditWindow(choice, ((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
+        setupTableColumns(choice);
     }
 
     public void setupEdit(ActionEvent actionEvent) {
@@ -154,35 +123,39 @@ public class EditController {
             }
             editTableView.refresh();
         } catch(DaoException e) {
-            handleException(e.getMessage());
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
     }
 
-    public void openEditWindow(String choice, boolean edit) throws IOException {
+    public void openEditWindow(String choice, Integer id) {
         Stage editWindow = new Stage();
         FXMLLoader loader = null;
-        if(choice.equals("Source")) {
-            loader = new FXMLLoader(getClass().getResource("/fxml/sourceEdit.fxml"));
-            loader.setController(new SourceEditController(source, edit));
-        } else if(choice.equals("Micronutrient")) {
-            loader = new FXMLLoader(getClass().getResource("/fxml/micronutrientEdit.fxml"));
-            loader.setController(new MicronutrientEditController(micronutrient, edit));
-        } else if(choice.equals("Presence")) {
-            loader = new FXMLLoader(getClass().getResource("/fxml/presenceEdit.fxml"));
-            loader.setController(new PresenceEditController(presence, edit));
+        try {
+            if (choice.equals("Source")) {
+                loader = new FXMLLoader(getClass().getResource("/fxml/sourceEdit.fxml"));
+                loader.setController(new SourceEditController(id));
+            } else if (choice.equals("Micronutrient")) {
+                loader = new FXMLLoader(getClass().getResource("/fxml/micronutrientEdit.fxml"));
+                loader.setController(new MicronutrientEditController(id));
+            } else if (choice.equals("Presence")) {
+                loader = new FXMLLoader(getClass().getResource("/fxml/presenceEdit.fxml"));
+                loader.setController(new PresenceEditController(id));
+            }
+            editWindow.setOnCloseRequest(actionEvent -> { //won't get triggered by hide method, get triggered by x button
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                        "Are you sure you want to close this window, updates won't apply",
+                        ButtonType.YES, ButtonType.NO);
+                Optional<ButtonType> selection = alert.showAndWait();
+                if (selection.isPresent() && selection.get() == ButtonType.NO)
+                    actionEvent.consume(); //to continue editing
+                else editWindow.close();
+            });
+            editWindow.setScene(loader.load());
+            editWindow.setResizable(false);
+            editWindow.initModality(Modality.APPLICATION_MODAL);
+            editWindow.showAndWait();
+        } catch(IOException e) {
+            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
-        editWindow.setScene(loader.load());
-        editWindow.setResizable(false);
-        editWindow.initModality(Modality.APPLICATION_MODAL);
-        editWindow.showAndWait();
-    }
-
-    public void handleException(String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Dao Exception");
-        alert.setHeaderText("Error");
-        alert.setContentText(msg);
-
-        alert.showAndWait();
     }
 }
