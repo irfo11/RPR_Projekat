@@ -44,31 +44,11 @@ public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements Presenc
 
     @Override
     public List<Presence> micronutrientsInSource(Source source) throws DaoException {
-        List<Presence> presences = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE source=").
-                append(source.getId());
-        try(Statement stmt = getConnection().createStatement()) {
-            ResultSet rs = stmt.executeQuery(query.toString());
-            while(rs.next()) presences.add(row2object(rs));
-            return presences;
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        return executeQuery("SELECT * FROM "+getTableName()+" WHERE source="+source.getId(), null);
     }
 
     @Override
     public List<Presence> sourcesOfMicronutrient(Micronutrient micronutrient) throws DaoException {
-        List<Presence> presences = new ArrayList<>();
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE micronutrient=").
-                append(micronutrient.getId());
-        try(Statement stmt = getConnection().createStatement()) {
-            ResultSet rs = stmt.executeQuery(query.toString());
-            while(rs.next()) presences.add(row2object(rs));
-            return presences;
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        return executeQuery("SELECT * FROM "+getTableName()+" WHERE micronutrient="+micronutrient.getId(), null);
     }
 }

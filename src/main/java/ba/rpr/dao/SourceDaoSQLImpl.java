@@ -39,15 +39,6 @@ public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
 
     @Override
     public Source searchByName(String name) throws DaoException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName()).append(" WHERE name=?");
-        try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
-            stmt.setString(1, name);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) return row2object(rs);
-            else return null;
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        return executeQueryUnique("SELECT * FROM "+getTableName()+" WHERE name=?", new Object[]{name});
     }
 }
