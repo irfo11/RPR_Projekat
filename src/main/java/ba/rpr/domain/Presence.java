@@ -48,4 +48,14 @@ public class Presence implements Idable{
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
+    @Override
+    public String toString() {
+        return "Presence{" +
+                "id=" + id +
+                ", micronutrient=" + micronutrient +
+                ", source=" + source +
+                ", amount=" + amount +
+                '}';
+    }
 }

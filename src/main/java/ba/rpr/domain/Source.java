@@ -28,4 +28,12 @@ public class Source implements Idable{
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "Source{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

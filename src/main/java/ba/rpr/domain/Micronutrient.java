@@ -48,4 +48,14 @@ public class Micronutrient implements Idable{
     public void setVitamin(boolean vitamin) {
         isVitamin = vitamin;
     }
+
+    @Override
+    public String toString() {
+        return "Micronutrient{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", role='" + role + '\'' +
+                ", isVitamin=" + isVitamin +
+                '}';
+    }
 }
