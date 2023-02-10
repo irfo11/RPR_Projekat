@@ -7,25 +7,24 @@ import ba.rpr.dao.exceptions.DaoException;
 
 public abstract class AbstractDao<T> implements Dao<T>{
 
-    private static Connection conn;
+    private static Connection conn = null;
     private String tableName;
-    static {
-        Properties dbProperties = new Properties();
-        try {
-            dbProperties.load(AbstractDao.class.getResourceAsStream("/db.properties"));
-            conn = DriverManager.getConnection(dbProperties.getProperty("url"),
-                    dbProperties.getProperty("username"),
-                    dbProperties.getProperty("password"));
-        } catch(Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
     public AbstractDao(String tableName) {
         this.tableName = tableName;
     }
 
-    public Connection getConnection() {
+    public Connection getConnection() throws DaoException{
+        if(conn == null) {
+            Properties dbProperties = new Properties();
+            try {
+                dbProperties.load(AbstractDao.class.getResourceAsStream("/db.properties"));
+                conn = DriverManager.getConnection(dbProperties.getProperty("url"),
+                        dbProperties.getProperty("username"),
+                        dbProperties.getProperty("password"));
+            } catch(Exception e) {
+                throw new DaoException(e.getMessage());
+            }
+        }
         return this.conn;
     }
 
@@ -39,76 +38,31 @@ public abstract class AbstractDao<T> implements Dao<T>{
 
     @Override
     public T getById(int id) throws DaoException{
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(tableName).append(" WHERE id=").append(id);
-        try(Statement stmt = getConnection().createStatement()) {
-            ResultSet rs = stmt.executeQuery(query.toString());
-            if(rs.next()) return row2object(rs);
-            else return null;
-        } catch (SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        return executeQueryUnique("SELECT * FROM "+tableName+" WHERE id=?", new Object[]{id});
     }
 
     @Override
     public void add(T item) throws DaoException{
         Map<String, Object> row = object2row(item);
         Map.Entry<String, String> columns = prepareInsertParts(row);
-        StringBuilder query = new StringBuilder();
-        query.append("INSERT INTO ").append(tableName).append(columns.getKey()).append("VALUES").append(columns.getValue());
-        try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())) {
-            int i=1;
-            for(Map.Entry<String, Object> entry: row.entrySet()) {
-                if(entry.getKey().equals("id")) continue;
-                stmt.setObject(i++, entry.getValue());
-            }
-            stmt.executeUpdate();
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        executeUpdate("INSERT INTO "+tableName+columns.getKey()+"VALUES"+columns.getValue(), row);
     }
 
     @Override
     public void delete(int id) throws DaoException{
-        StringBuilder query = new StringBuilder();
-        query.append("DELETE FROM ").append(tableName).append(" WHERE id=").append(id);
-        try(Statement stmt = getConnection().createStatement()){
-            stmt.executeUpdate(query.toString());
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        executeUpdate("DELETE FROM "+tableName+" WHERE id="+id, null);
     }
 
     @Override
     public void update(int id, T item) throws DaoException{
         Map<String, Object> row = object2row(item);
         String columns = prepareUpdateParts(row);
-        StringBuilder query = new StringBuilder();
-        query.append("UPDATE ").append(tableName).append(" SET").append(columns).append("WHERE id=").append(id);
-        try(PreparedStatement stmt = getConnection().prepareStatement(query.toString())){
-            int i=1;
-            for(Map.Entry<String, Object> entry: row.entrySet()) {
-                if(entry.getKey().equals("id")) continue;
-                stmt.setObject(i++, entry.getValue());
-            }
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        executeUpdate("UPDATE "+getTableName()+" SET"+columns+"WHERE id="+id, row);
     }
 
     @Override
     public List<T> getAll() throws DaoException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(getTableName());
-        try(Statement stmt = getConnection().createStatement()) {
-            List<T> list = new ArrayList<>();
-            ResultSet rs = stmt.executeQuery(query.toString());
-            while(rs.next()) list.add(row2object(rs));
-            return list;
-        } catch(SQLException e) {
-            throw new DaoException(e.getMessage());
-        }
+        return executeQuery("SELECT * FROM "+getTableName(), null);
     }
 
     private Map.Entry<String, String> prepareInsertParts(Map<String, Object> row) {
@@ -138,6 +92,46 @@ public abstract class AbstractDao<T> implements Dao<T>{
         updatePart.deleteCharAt(updatePart.length()-1);
         updatePart.append(" ");
         return updatePart.toString();
+    }
+
+    public List<T> executeQuery(String query, Object[] params) throws DaoException{
+        try(PreparedStatement stmt = getConnection().prepareStatement(query)) {
+            if(params != null) {
+                for (int i = 1; i <= params.length; i++) {
+                    stmt.setObject(i, params[i - 1]);
+                }
+            }
+            List<T> results = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                results.add(row2object(rs));
+            }
+            return results;
+        } catch(SQLException e) {
+            throw new DaoException(e.getMessage());
+        }
+    }
+
+    public T executeQueryUnique(String query, Object[] params) throws DaoException {
+        List<T> element = executeQuery(query, params);
+        if(element != null && element.size()==1) {
+            return element.get(0);
+        } else return null;
+    }
+
+    public void executeUpdate(String query, Map<String, Object> row) throws DaoException{
+        try(PreparedStatement stmt = getConnection().prepareStatement(query)) {
+            if(row != null) {
+                int i = 1;
+                for (Map.Entry<String, Object> entry : row.entrySet()) {
+                    if (entry.getKey().equals("id")) continue;
+                    stmt.setObject(i++, entry.getValue());
+                }
+            }
+            stmt.executeUpdate();
+        } catch(SQLException e) {
+            throw new DaoException(e.getMessage());
+        }
     }
 
 }
