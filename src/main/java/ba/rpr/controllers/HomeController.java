@@ -84,8 +84,10 @@ public class HomeController {
                 }
             }
             amountTableColumn.setCellValueFactory(new PropertyValueFactory<Presence, Double>("amount"));
-            if(!presenceList.isEmpty()) presenceTableView.getItems().setAll(presenceList);
-            else presenceTableView.setPlaceholder(new Label("No presence found for given " + selectedRadioButtonText));
+            presenceTableView.getItems().setAll(presenceList);
+            if(presenceList.isEmpty()) {
+                presenceTableView.setPlaceholder(new Label("No presence found for given " + selectedRadioButtonText));
+            }
             presenceTableView.refresh();
         } catch(DaoException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
