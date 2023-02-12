@@ -90,20 +90,20 @@ public class HomeController {
             }
             presenceTableView.refresh();
         } catch(DaoException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Dao error");
-            alert.setHeaderText("Error");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            handleException(e.getMessage());
         }
     }
 
-    public void hideMicronutrientInfo() {
+    public static void handleException(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+    }
+
+    private void hideMicronutrientInfo() {
         micronutrientInfoHBox.setVisible(false);
         micronutrientInfoRow.setPrefHeight(0);
     }
 
-    public void showMicronutrientInfo(Micronutrient micronutrient) {
+    private void showMicronutrientInfo(Micronutrient micronutrient) {
         micronutrientInfoHBox.setVisible(true);
         micronutrientInfoRow.setPrefHeight(USE_COMPUTED_SIZE);
         micronutrientInfoTextArea.setText(micronutrient.getRole());

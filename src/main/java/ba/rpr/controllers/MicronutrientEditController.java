@@ -9,7 +9,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 public class MicronutrientEditController {
     private final Integer id;
@@ -48,7 +47,7 @@ public class MicronutrientEditController {
                 actionButton.setText("Update");
             } else actionButton.setText("Add");
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 
@@ -58,7 +57,7 @@ public class MicronutrientEditController {
             else micronutrientManager.add(micronutrientModel.toMicronutrient());
             scene.getWindow().hide();
         } catch (DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 

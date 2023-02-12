@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 
 public class SourceEditController {
     private final Integer id;
@@ -37,7 +36,7 @@ public class SourceEditController {
                 actionButton.setText("Update");
             } else actionButton.setText("Add");
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 
@@ -47,7 +46,7 @@ public class SourceEditController {
             else sourceManager.add(sourceModel.toSource());
             scene.getWindow().hide();
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 

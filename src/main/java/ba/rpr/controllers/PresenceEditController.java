@@ -30,8 +30,6 @@ public class PresenceEditController {
     public TextField micronutrientTextField;
     public TextField sourceTextField;
     public TextField amountTextField;
-    //find way how to bound amount, do it as you intended with the validation inside model
-    //you also gotta validate if the source and micronutrietn exist and then change the property value...
     public Button actionButton;
 
     public PresenceEditController(Integer id) {
@@ -51,7 +49,7 @@ public class PresenceEditController {
                 actionButton.setText("Add");
             }
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 
@@ -61,7 +59,7 @@ public class PresenceEditController {
             else presenceManager.add(presenceModel.toPresence());
             scene.getWindow().hide();
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 

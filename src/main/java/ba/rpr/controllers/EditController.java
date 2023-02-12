@@ -59,7 +59,7 @@ public class EditController {
             }
             setupTableColumns(choice);
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ public class EditController {
             }
             editTableView.refresh();
         } catch(DaoException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ public class EditController {
             editWindow.initModality(Modality.APPLICATION_MODAL);
             editWindow.showAndWait();
         } catch(IOException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+            HomeController.handleException(e.getMessage());
         }
     }
 }
