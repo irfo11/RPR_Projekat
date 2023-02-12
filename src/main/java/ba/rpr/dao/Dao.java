@@ -2,7 +2,6 @@ package ba.rpr.dao;
 
 import ba.rpr.dao.exceptions.DaoException;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**

@@ -1,8 +1,8 @@
 package ba.rpr.dao;
 
+import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Micronutrient;
 import ba.rpr.domain.Presence;
-import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Source;
 
 import java.util.List;

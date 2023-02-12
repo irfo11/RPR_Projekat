@@ -1,7 +1,7 @@
 package ba.rpr.dao;
 
-import ba.rpr.domain.Micronutrient;
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Micronutrient;
 
 /**
  * Dao interface for Micronutrient class

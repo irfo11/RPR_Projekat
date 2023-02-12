@@ -1,7 +1,7 @@
 package ba.rpr.dao;
 
-import ba.rpr.domain.Source;
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Source;
 
 /**
  * Dao interface for Source class

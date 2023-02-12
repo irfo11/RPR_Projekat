@@ -1,9 +1,9 @@
 package ba.rpr.dao;
 
+import ba.rpr.dao.exceptions.DaoException;
+
 import java.sql.*;
 import java.util.*;
-
-import ba.rpr.dao.exceptions.DaoException;
 
 public abstract class AbstractDao<T> implements Dao<T>{
 

@@ -4,6 +4,8 @@ import ba.rpr.business.MicronutrientManager;
 import ba.rpr.business.PresenceManager;
 import ba.rpr.business.SourceManager;
 import ba.rpr.dao.exceptions.DaoException;
+import ba.rpr.domain.Micronutrient;
+import ba.rpr.domain.Presence;
 import ba.rpr.domain.Source;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
@@ -16,14 +18,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import ba.rpr.domain.Presence;
-import ba.rpr.domain.Micronutrient;
-import javafx.util.Callback;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 

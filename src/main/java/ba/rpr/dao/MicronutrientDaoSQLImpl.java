@@ -3,8 +3,10 @@ package ba.rpr.dao;
 import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Micronutrient;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implements MicronutrientDao{
     private static MicronutrientDaoSQLImpl instance = null;
