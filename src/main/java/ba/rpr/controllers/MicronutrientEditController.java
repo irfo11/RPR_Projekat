@@ -31,6 +31,7 @@ public class MicronutrientEditController {
         try {
             nameTextField.textProperty().bindBidirectional(micronutrientModel.name);
             roleTextArea.textProperty().bindBidirectional(micronutrientModel.role);
+            //based on radio button value it sets value of isVitamin field
             ((RadioButton) micronutrientType.getToggles().get(0)).setOnAction(actionEvent -> {
                 micronutrientModel.isVitamin.set(true);
             });
