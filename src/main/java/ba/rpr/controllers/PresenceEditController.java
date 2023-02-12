@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
@@ -53,15 +54,32 @@ public class PresenceEditController {
 
     public void save(ActionEvent actionEvent) {
         try {
-            if(id != null) presenceManager.update(id, presenceModel.toPresence());
-            else presenceManager.add(presenceModel.toPresence());
-            scene.getWindow().hide();
-        } catch(DaoException e) {
+            presenceModel.micronutrient = micronutrientManager.searchByName(presenceModel.micronutrientName.get());
+            presenceModel.source = sourceManager.searchByName(presenceModel.sourceName.get());
+            validatePresence();
+                if (id != null) presenceManager.update(id, presenceModel.toPresence());
+                else presenceManager.add(presenceModel.toPresence());
+                scene.getWindow().hide();
+        } catch (DaoException | IllegalArgumentException e) {
             HomeController.handleException(e.getMessage());
+        }
+    }
+    private void validatePresence() {
+        if(presenceModel.micronutrient == null) {
+            micronutrientTextField.requestFocus();
+            throw new IllegalArgumentException("Micronutrient with given name does not exist.");
+        } else if(presenceModel.source == null) {
+            sourceTextField.requestFocus();
+            throw new IllegalArgumentException("Source with given name does not exist.");
+        } else if(!amountTextField.getText().matches("^-?\\d*\\.{0,1}\\d+$")) { // true if theres is char that is not . or digit
+            amountTextField.requestFocus();
+            throw new IllegalArgumentException("Amount is not a number.");
         }
     }
 
     public class PresenceModel {
+        public Micronutrient micronutrient = new Micronutrient();
+        public Source source = new Source();
         public SimpleStringProperty micronutrientName = new SimpleStringProperty("");
         public SimpleStringProperty sourceName = new SimpleStringProperty("");
         public SimpleDoubleProperty amount = new SimpleDoubleProperty(0.0);
@@ -73,10 +91,6 @@ public class PresenceEditController {
         }
 
         public Presence toPresence() throws DaoException{
-            Micronutrient micronutrient = micronutrientManager.searchByName(micronutrientName.get());
-            if(micronutrient == null) throw new DaoException("Micronutrient with given name does not exist");
-            Source source = sourceManager.searchByName(sourceName.get());
-            if(source == null) throw new DaoException("Source with given name does not exist");
             return new Presence(-1, micronutrient, source, amount.get());
         }
     }
