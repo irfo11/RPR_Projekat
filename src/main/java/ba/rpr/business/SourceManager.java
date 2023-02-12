@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Manager class for Source, which contains business logic
  */
-public class SourceManager {
+public class SourceManager implements Manager<Source>{
     private void validateName(String name) throws DaoException{
         if(name == null || name.length() < 3 || name.length() > 45)
             throw new DaoException("Source must have name length between 3 to 45 characters");
