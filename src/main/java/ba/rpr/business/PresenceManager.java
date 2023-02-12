@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Manager class for Presence, which contains business logic
  */
-public class PresenceManager {
+public class PresenceManager implements Manager<Presence>{
     public Presence getById(int id) throws DaoException{
         return DaoFactory.presenceDao().getById(id);
     }
@@ -38,6 +38,10 @@ public class PresenceManager {
                 throw new DaoException("Cannot update Presence, because Presence with same Micronutrient and Source already exists");
             throw e;
         }
+    }
+
+    public List<Presence> getAll() throws DaoException{
+       return DaoFactory.presenceDao().getAll();
     }
 
     public List<Presence> micronutrientsInSource(Source source) throws DaoException {

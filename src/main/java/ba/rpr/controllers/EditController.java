@@ -1,5 +1,6 @@
 package ba.rpr.controllers;
 
+import ba.rpr.business.Manager;
 import ba.rpr.business.MicronutrientManager;
 import ba.rpr.business.PresenceManager;
 import ba.rpr.business.SourceManager;
@@ -50,15 +51,13 @@ public class EditController {
     public void delete(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         try {
-            if (choice.equals("Source")) {
-                sourceManager.delete(((Source) editTableView.getSelectionModel().getSelectedItem()).getId());
-            } else if(choice.equals("Micronutrient")) {
-                micronutrientManager.delete(((Micronutrient) editTableView.getSelectionModel().getSelectedItem()).getId());
-            } else if(choice.equals("Presence")) {
-                presenceManager.delete(((Presence) editTableView.getSelectionModel().getSelectedItem()).getId());
-            }
+            //gets Class based on choice
+            Class<?> managerClass = Class.forName("ba.rpr.business."+choice+"Manager");
+            //gets instance of manager from Class
+            Manager manager = (Manager) managerClass.getDeclaredConstructor().newInstance();
+            manager.delete(((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
             setupTableColumns(choice);
-        } catch(DaoException e) {
+        } catch(Exception e) {
             HomeController.handleException(e.getMessage());
         }
     }

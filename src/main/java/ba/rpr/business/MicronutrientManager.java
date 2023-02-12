@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Manager class for Micronutrient, which contains business logic
  */
-public class MicronutrientManager {
+public class MicronutrientManager implements Manager<Micronutrient>{
     private void validateName(String name) throws DaoException {
         if(name == null || name.length() < 1 || name.length() > 45)
             throw new DaoException("Micronutrient must have name length between 1 to 45 characters");
