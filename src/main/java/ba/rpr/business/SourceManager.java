@@ -12,7 +12,9 @@ import java.util.List;
 public class SourceManager implements Manager<Source>{
     private void validateName(String name) throws DaoException{
         if(name == null || name.length() < 3 || name.length() > 45)
-            throw new DaoException("Source must have name length between 3 to 45 characters");
+            throw new DaoException("Source must have name length between 3 to 45 characters.");
+        if(!name.matches("^[a-zA-Z ]*$"))
+            throw new DaoException("Source name can only contain letters and whitespaces.");
     }
     public Source getById(int id) throws DaoException{
         return DaoFactory.sourceDao().getById(id);
