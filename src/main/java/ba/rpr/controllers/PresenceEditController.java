@@ -54,24 +54,24 @@ public class PresenceEditController {
 
     public void save(ActionEvent actionEvent) {
         try {
-            presenceModel.micronutrient = micronutrientManager.searchByName(presenceModel.micronutrientName.get());
-            presenceModel.source = sourceManager.searchByName(presenceModel.sourceName.get());
             validatePresence();
-                if (id != null) presenceManager.update(id, presenceModel.toPresence());
-                else presenceManager.add(presenceModel.toPresence());
-                scene.getWindow().hide();
+            if (id != null) presenceManager.update(id, presenceModel.toPresence());
+            else presenceManager.add(presenceModel.toPresence());
+            scene.getWindow().hide();
         } catch (DaoException | IllegalArgumentException e) {
             HomeController.handleException(e.getMessage());
         }
     }
-    private void validatePresence() {
+    private void validatePresence() throws DaoException{
+        presenceModel.micronutrient = micronutrientManager.searchByName(presenceModel.micronutrientName.get());
+        presenceModel.source = sourceManager.searchByName(presenceModel.sourceName.get());
         if(presenceModel.micronutrient == null) {
             micronutrientTextField.requestFocus();
             throw new IllegalArgumentException("Micronutrient with given name does not exist.");
         } else if(presenceModel.source == null) {
             sourceTextField.requestFocus();
             throw new IllegalArgumentException("Source with given name does not exist.");
-        } else if(!amountTextField.getText().matches("^-?\\d*\\.{0,1}\\d+$")) { // true if theres is char that is not . or digit
+        } else if(!amountTextField.getText().matches("^-?\\d*\\.{0,1}\\d+$")) { // allows only format ###.###
             amountTextField.requestFocus();
             throw new IllegalArgumentException("Amount is not a number.");
         }
