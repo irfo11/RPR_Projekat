@@ -12,11 +12,17 @@ import java.util.List;
  * Manager class for Presence, which contains business logic
  */
 public class PresenceManager implements Manager<Presence>{
+
+    private void validateAmount(double amount) throws DaoException{
+        if(amount <= 0.0) throw new DaoException("Amount cannot be zero or negative.");
+    }
+
     public Presence getById(int id) throws DaoException{
         return DaoFactory.presenceDao().getById(id);
     }
 
     public void add(Presence presence) throws DaoException {
+        validateAmount(presence.getAmount());
         try {
             DaoFactory.presenceDao().add(presence);
         } catch(DaoException e) {
@@ -31,6 +37,7 @@ public class PresenceManager implements Manager<Presence>{
     }
 
     public void update(int id, Presence presence) throws DaoException {
+        validateAmount(presence.getAmount());
         try {
             DaoFactory.presenceDao().update(id, presence);
         } catch(DaoException e) {
