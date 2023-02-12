@@ -15,6 +15,8 @@ public class MicronutrientManager implements Manager<Micronutrient>{
             throw new DaoException("Micronutrient must have name length between 1 to 45 characters");
         if(name.toLowerCase().contains("vitamin"))
             throw new DaoException("Micronutrient does not need to have 'vitamin' in its name");
+        if(!name.matches("^[a-zA-Z0-9 ]*$"))
+            throw new DaoException("Micronutrient name can only contain alphanumerical characters");
     }
 
     public Micronutrient getById(int id) throws DaoException {
