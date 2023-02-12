@@ -14,10 +14,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 import java.io.IOException;
@@ -51,16 +53,24 @@ public class HomeController {
     }
 
     public void openEditWindow(ActionEvent actionEvent) throws IOException {
-        Stage editWindow = new Stage();
-        editWindow.setTitle("Edit");
-        editWindow.setScene(FXMLLoader.load(getClass().getResource("/fxml/edit.fxml")));
-        editWindow.setResizable(false);
-        editWindow.initModality(Modality.APPLICATION_MODAL); //disables home stage
-        editWindow.show();
+        openWindow("Edit", "/fxml/edit.fxml");
     }
 
-    public void restoreDefaultValues() {}
-    public void showAbout() {}
+    public void showAbout() throws IOException{
+        openWindow("About", "/fxml/about.fxml");
+    }
+
+    private void openWindow(String title, String fxmlPath) throws IOException {
+        Stage stage = new Stage();
+        stage.setScene(FXMLLoader.load(getClass().getResource(fxmlPath)));
+        stage.setTitle(title);
+        stage.getIcons().add(new Image("/fxml/grape.jpeg"));
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.initModality(Modality.APPLICATION_MODAL); //disables home stage
+        stage.show();
+    }
+
     public void searchPresence() {
         try {
             hideMicronutrientInfo();
