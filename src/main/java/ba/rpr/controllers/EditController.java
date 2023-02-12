@@ -4,8 +4,6 @@ import ba.rpr.business.Manager;
 import ba.rpr.business.MicronutrientManager;
 import ba.rpr.business.PresenceManager;
 import ba.rpr.business.SourceManager;
-import ba.rpr.dao.DaoFactory;
-import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Idable;
 import ba.rpr.domain.Micronutrient;
 import ba.rpr.domain.Presence;
@@ -20,8 +18,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 public class EditController {
     public ComboBox editComboBox;
@@ -30,9 +29,13 @@ public class EditController {
     public Button editButton;
     public Button deleteButton;
 
-    private final SourceManager sourceManager = new SourceManager();
-    private final MicronutrientManager micronutrientManager = new MicronutrientManager();
-    private final PresenceManager presenceManager = new PresenceManager();
+    private final Map<String, Manager> managers = new TreeMap<>();
+
+    public EditController() {
+        managers.put("Source", new SourceManager());
+        managers.put("Micronutrient", new MicronutrientManager());
+        managers.put("Presence", new PresenceManager());
+    }
 
     @FXML
     public void initialize() {
@@ -51,11 +54,7 @@ public class EditController {
     public void delete(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         try {
-            //gets Class based on choice
-            Class<?> managerClass = Class.forName("ba.rpr.business."+choice+"Manager");
-            //gets instance of manager from Class
-            Manager manager = (Manager) managerClass.getDeclaredConstructor().newInstance();
-            manager.delete(((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
+            managers.get(choice).delete(((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
             setupTableColumns(choice);
         } catch(Exception e) {
             HomeController.handleException(e.getMessage());
@@ -75,71 +74,70 @@ public class EditController {
         setupTableColumns(editComboBox.getSelectionModel().getSelectedItem().toString());
     }
 
+    private void setupSourceTableColumns() {
+        TableColumn<Source, Integer> id = new TableColumn<>("Id");
+        TableColumn<Source, String> name = new TableColumn<>("Name");
+        id.setCellValueFactory(new PropertyValueFactory<Source, Integer>("id"));
+        name.setCellValueFactory(new PropertyValueFactory<Source, String>("name"));
+        editTableView.getColumns().setAll(id, name);
+    }
+
+    private void setupMicronutrientTableColumns() {
+        TableColumn<Micronutrient, Integer> id = new TableColumn<>("Id");
+        TableColumn<Micronutrient, String> name = new TableColumn<>("Name");
+        TableColumn<Micronutrient, String> type = new TableColumn<>("Type");
+        TableColumn<Micronutrient, Text> role = new TableColumn<>("Role"); //
+        id.setCellValueFactory(new PropertyValueFactory<Micronutrient, Integer>("id"));
+        name.setCellValueFactory(new PropertyValueFactory<Micronutrient, String>("name"));
+        type.setCellValueFactory(micronutrient -> {
+            if(micronutrient.getValue().isVitamin()) return new ReadOnlyStringWrapper("Vitamin");
+            return new ReadOnlyStringWrapper("Mineral");
+        });
+        role.setCellValueFactory(new PropertyValueFactory<>("role"));
+        editTableView.getColumns().setAll(id, name, type, role);
+        role.prefWidthProperty().bind( //so that the last column get all the leftover space
+                editTableView.widthProperty()
+                        .subtract(id.widthProperty())
+                        .subtract(name.widthProperty())
+                        .subtract(type.widthProperty())
+        );
+    }
+
+    private void setupPresenceTableColumns() {
+        TableColumn<Presence, Integer> id = new TableColumn<>("Id");
+        TableColumn<Presence, String> micronutrient = new TableColumn<>("Micronutrient");
+        TableColumn<Presence, String> source = new TableColumn<>("Source");
+        TableColumn<Presence, Double> amount = new TableColumn<>("Amount");
+        id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        micronutrient.setCellValueFactory(presence -> {
+            return new ReadOnlyStringWrapper(presence.getValue().getMicronutrient().getName());
+        });
+        source.setCellValueFactory(presence -> {
+            return new ReadOnlyStringWrapper(presence.getValue().getSource().getName());
+        });
+        amount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        editTableView.getColumns().setAll(id, micronutrient, source, amount);
+    }
+
     public void setupTableColumns(String choice) {
         try {
-            if (choice.equals("Source")) {
-                TableColumn<Source, Integer> id = new TableColumn<>("Id");
-                TableColumn<Source, String> name = new TableColumn<>("Name");
-                id.setCellValueFactory(new PropertyValueFactory<Source, Integer>("id"));
-                name.setCellValueFactory(new PropertyValueFactory<Source, String>("name"));
-                editTableView.getColumns().setAll(id, name);
-                editTableView.getItems().setAll(DaoFactory.sourceDao().getAll());
-            } else if(choice.equals("Micronutrient")) {
-                TableColumn<Micronutrient, Integer> id = new TableColumn<>("Id");
-                TableColumn<Micronutrient, String> name = new TableColumn<>("Name");
-                TableColumn<Micronutrient, String> type = new TableColumn<>("Type");
-                TableColumn<Micronutrient, Text> role = new TableColumn<>("Role"); //
-                id.setCellValueFactory(new PropertyValueFactory<Micronutrient, Integer>("id"));
-                name.setCellValueFactory(new PropertyValueFactory<Micronutrient, String>("name"));
-                type.setCellValueFactory(micronutrient -> {
-                    if(micronutrient.getValue().isVitamin()) return new ReadOnlyStringWrapper("Vitamin");
-                    return new ReadOnlyStringWrapper("Mineral");
-                });
-                role.setCellValueFactory(new PropertyValueFactory<>("role"));
-                editTableView.getColumns().setAll(id, name, type, role);
-                editTableView.getItems().setAll(DaoFactory.micronutrientDao().getAll());
-                role.prefWidthProperty().bind( //so that the last column get all the leftover space
-                        editTableView.widthProperty()
-                                .subtract(id.widthProperty())
-                                .subtract(name.widthProperty())
-                                .subtract(type.widthProperty())
-                );
-            } else if(choice.equals("Presence")) {
-                TableColumn<Presence, Integer> id = new TableColumn<>("Id");
-                TableColumn<Presence, String> micronutrient = new TableColumn<>("Micronutrient");
-                TableColumn<Presence, String> source = new TableColumn<>("Source");
-                TableColumn<Presence, Double> amount = new TableColumn<>("Amount");
-                id.setCellValueFactory(new PropertyValueFactory<>("id"));
-                micronutrient.setCellValueFactory(presence -> {
-                    return new ReadOnlyStringWrapper(presence.getValue().getMicronutrient().getName());
-                });
-                source.setCellValueFactory(presence -> {
-                    return new ReadOnlyStringWrapper(presence.getValue().getSource().getName());
-                });
-                amount.setCellValueFactory(new PropertyValueFactory<>("amount"));
-                editTableView.getColumns().setAll(id, micronutrient, source, amount);
-                editTableView.getItems().setAll(DaoFactory.presenceDao().getAll());
-            }
+            getClass().getDeclaredMethod("setup"+choice+"TableColumns").invoke(this);
+            editTableView.getItems().setAll(managers.get(choice).getAll());
             editTableView.refresh();
-        } catch(DaoException e) {
+        } catch(Exception e) {
             HomeController.handleException(e.getMessage());
         }
     }
 
     public void openEditWindow(String choice, Integer id) {
         Stage editWindow = new Stage();
-        FXMLLoader loader = null;
         try {
-            if (choice.equals("Source")) {
-                loader = new FXMLLoader(getClass().getResource("/fxml/sourceEdit.fxml"));
-                loader.setController(new SourceEditController(id));
-            } else if (choice.equals("Micronutrient")) {
-                loader = new FXMLLoader(getClass().getResource("/fxml/micronutrientEdit.fxml"));
-                loader.setController(new MicronutrientEditController(id));
-            } else if (choice.equals("Presence")) {
-                loader = new FXMLLoader(getClass().getResource("/fxml/presenceEdit.fxml"));
-                loader.setController(new PresenceEditController(id));
-            }
+            //loads fxml based on choice
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/"+choice.toLowerCase()+"Edit.fxml"));
+            //finds controller based on choice, if new controllers get created they should follow same naming template
+            loader.setController(
+                Class.forName("ba.rpr.controllers."+choice+"EditController").
+                        getConstructor(Integer.class).newInstance(id));
             editWindow.setOnCloseRequest(actionEvent -> { //won't get triggered by hide method, get triggered by x button
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
                         "Are you sure you want to close this window, updates won't apply",
@@ -153,7 +151,7 @@ public class EditController {
             editWindow.setResizable(false);
             editWindow.initModality(Modality.APPLICATION_MODAL);
             editWindow.showAndWait();
-        } catch(IOException e) {
+        } catch(Exception e) {
             HomeController.handleException(e.getMessage());
         }
     }
