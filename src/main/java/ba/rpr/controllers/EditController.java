@@ -55,8 +55,11 @@ public class EditController {
     public void delete(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         try {
-            managers.get(choice).delete(((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
-            setupTableColumns(choice);
+            Object selectedRow = editTableView.getSelectionModel().getSelectedItem();
+            if(selectedRow != null) {
+                managers.get(choice).delete(((Idable) selectedRow).getId());
+                setupTableColumns(choice);
+            } else new Alert(Alert.AlertType.WARNING, "You have to select a row first.").showAndWait();
         } catch(Exception e) {
             HomeController.handleException(e.getMessage());
         }
@@ -64,8 +67,11 @@ public class EditController {
 
     public void edit(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
-        openEditWindow(choice, ((Idable) editTableView.getSelectionModel().getSelectedItem()).getId());
-        setupTableColumns(choice);
+        Object selectedRow = editTableView.getSelectionModel().getSelectedItem();
+        if(selectedRow != null) {
+            openEditWindow(choice, ((Idable) selectedRow).getId());
+            setupTableColumns(choice);
+        } else new Alert(Alert.AlertType.WARNING, "You have to select a row first.").showAndWait();
     }
 
     public void setupEdit(ActionEvent actionEvent) {
