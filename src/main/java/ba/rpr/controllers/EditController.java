@@ -17,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.util.Map;
 import java.util.Optional;
@@ -86,7 +87,7 @@ public class EditController {
         TableColumn<Micronutrient, Integer> id = new TableColumn<>("Id");
         TableColumn<Micronutrient, String> name = new TableColumn<>("Name");
         TableColumn<Micronutrient, String> type = new TableColumn<>("Type");
-        TableColumn<Micronutrient, Text> role = new TableColumn<>("Role"); //
+        TableColumn<Micronutrient, String> role = new TableColumn<>("Role"); //
         id.setCellValueFactory(new PropertyValueFactory<Micronutrient, Integer>("id"));
         name.setCellValueFactory(new PropertyValueFactory<Micronutrient, String>("name"));
         type.setCellValueFactory(micronutrient -> {
@@ -94,6 +95,23 @@ public class EditController {
             return new ReadOnlyStringWrapper("Mineral");
         });
         role.setCellValueFactory(new PropertyValueFactory<>("role"));
+        role.setCellFactory(new Callback<>() { //this code sets up the text wrap
+            @Override
+            public TableCell<Micronutrient, String> call(TableColumn<Micronutrient, String> param) {
+                return new TableCell<>() {
+                    private Text text;
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!isEmpty()) {
+                            text = new Text(item);
+                            text.setWrappingWidth(role.getPrefWidth()-10); // Setting the wrapping width to the Text
+                            setGraphic(text);
+                        }
+                    }
+                };
+            }
+        });
         editTableView.getColumns().setAll(id, name, type, role);
         role.prefWidthProperty().bind( //so that the last column get all the leftover space
                 editTableView.widthProperty()
