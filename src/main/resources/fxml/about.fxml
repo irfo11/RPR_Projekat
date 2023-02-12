@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<Scene xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <AnchorPane prefHeight="250.0" prefWidth="400.0">
+      <children>
+         <ImageView fitHeight="100.0" fitWidth="100.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="40.0">
+            <image>
+               <Image url="@../imgs/grape.jpeg" />
+            </image>
+         </ImageView>
+         <Text layoutX="200.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0"
+               text="hello" />
+      </children></AnchorPane>
+</Scene>
