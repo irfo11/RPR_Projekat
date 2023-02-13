@@ -28,10 +28,12 @@ import java.util.List;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
+/**
+ * JavaFX controller for home window
+ */
 public class HomeController {
 
     public MenuItem editMenuItem;
-    public MenuItem restoreMenuItem;
     public MenuItem aboutMenuItem;
     public TextField nameTextField;
     public ToggleGroup searchGroup;
@@ -52,10 +54,16 @@ public class HomeController {
         presenceTableView.setPlaceholder(new Label("Please enter a name to see presences"));
     }
 
+    /**
+     * Edit menu item event handler
+     */
     public void openEditWindow(ActionEvent actionEvent) throws IOException {
         openWindow("Edit", "/fxml/edit.fxml");
     }
 
+    /**
+     * About menu item event handler
+     */
     public void showAbout() throws IOException{
         openWindow("About", "/fxml/about.fxml");
     }
@@ -71,6 +79,9 @@ public class HomeController {
         stage.show();
     }
 
+    /**
+     * Search button event handler
+     */
     public void searchPresence() {
         try {
             hideMicronutrientInfo();

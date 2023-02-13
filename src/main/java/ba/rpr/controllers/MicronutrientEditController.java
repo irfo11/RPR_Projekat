@@ -10,6 +10,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 
+/**
+ * JavaFX controller for micronutrient editing window
+ */
 public class MicronutrientEditController {
     private final Integer id;
     private MicronutrientModel micronutrientModel = new MicronutrientModel();
@@ -52,6 +55,9 @@ public class MicronutrientEditController {
         }
     }
 
+    /**
+     * Action button event handler
+     */
     public void save(ActionEvent actionEvent) {
         try {
             if(id != null) micronutrientManager.update(id, micronutrientModel.toMicronutrient());
@@ -62,6 +68,9 @@ public class MicronutrientEditController {
         }
     }
 
+    /**
+     * Micronutrient model class for 2 way binding
+     */
     public class MicronutrientModel {
         public SimpleStringProperty name = new SimpleStringProperty("");
         public SimpleStringProperty role = new SimpleStringProperty("");

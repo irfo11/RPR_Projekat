@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * SQL implementation for SourceDao
+ * MySQL implementation of Dao
  */
 public class SourceDaoSQLImpl extends AbstractDao<Source> implements SourceDao{
     private static SourceDaoSQLImpl instance = null;

@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
+/**
+ * JavaFX controller for source editing window
+ */
 public class SourceEditController {
     private final Integer id;
 
@@ -39,6 +42,9 @@ public class SourceEditController {
         }
     }
 
+    /**
+     * Action button event handler
+     */
     public void save(ActionEvent actionEvent) {
         try {
             if(id != null) sourceManager.update(id, sourceModel.toSource());
@@ -49,6 +55,9 @@ public class SourceEditController {
         }
     }
 
+    /**
+     * Source model class for 2 way binding
+     */
     public class SourceModel {
         public SimpleStringProperty name = new SimpleStringProperty("");
 

@@ -9,7 +9,6 @@ import org.apache.commons.cli.*;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.commons.text.WordUtils;
 
-
 import java.util.List;
 
 public class AppCLI {

@@ -12,11 +12,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 
+/**
+ * JavaFX controller for presence editing window
+ */
 public class PresenceEditController {
     private final Integer id;
 
@@ -52,6 +54,9 @@ public class PresenceEditController {
         }
     }
 
+    /**
+     * Action button event handler
+     */
     public void save(ActionEvent actionEvent) {
         try {
             validatePresence();
@@ -77,6 +82,9 @@ public class PresenceEditController {
         }
     }
 
+    /**
+     * Presence model class for 2 way binding
+     */
     public class PresenceModel {
         public Micronutrient micronutrient = new Micronutrient();
         public Source source = new Source();

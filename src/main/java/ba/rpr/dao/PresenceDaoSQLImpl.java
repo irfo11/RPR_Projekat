@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * MySQL implementation of Dao
+ */
 public class PresenceDaoSQLImpl extends AbstractDao<Presence> implements PresenceDao {
     private static PresenceDaoSQLImpl instance = null;
     private PresenceDaoSQLImpl() {

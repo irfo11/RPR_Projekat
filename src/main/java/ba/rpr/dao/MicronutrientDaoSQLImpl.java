@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * MySQL implementation of Dao
+ */
 public class MicronutrientDaoSQLImpl extends AbstractDao<Micronutrient> implements MicronutrientDao{
     private static MicronutrientDaoSQLImpl instance = null;
     private MicronutrientDaoSQLImpl() {

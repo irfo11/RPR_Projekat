@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+/**
+ * JavaFX controller for executing CRUD operations on domain objects
+ */
 public class EditController {
     public ComboBox editComboBox;
     public TableView editTableView;
@@ -46,12 +49,18 @@ public class EditController {
         deleteButton.setDisable(true);
     }
 
+    /**
+     * Add button event handler
+     */
     public void add(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         openEditWindow(choice, null);
         setupTableColumns(choice);
     }
 
+    /**
+     * Delete button event handler
+     */
     public void delete(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         try {
@@ -65,6 +74,9 @@ public class EditController {
         }
     }
 
+    /**
+     * Edit button event handler
+     */
     public void edit(ActionEvent actionEvent) {
         String choice = editComboBox.getSelectionModel().getSelectedItem().toString();
         Object selectedRow = editTableView.getSelectionModel().getSelectedItem();
@@ -153,6 +165,11 @@ public class EditController {
         }
     }
 
+    /**
+     * Opens new window for editing domain object
+     * @param choice - domain class name
+     * @param id - id of the domain object to edit
+     */
     public void openEditWindow(String choice, Integer id) {
         Stage editWindow = new Stage();
         try {

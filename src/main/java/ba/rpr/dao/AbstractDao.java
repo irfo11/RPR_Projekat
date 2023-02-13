@@ -5,6 +5,10 @@ import ba.rpr.dao.exceptions.DaoException;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * Abstract DAO class that implements CRUD method for every domain class
+ * @param <T> Domain class
+ */
 public abstract class AbstractDao<T> implements Dao<T>{
 
     private static Connection conn = null;
@@ -65,6 +69,12 @@ public abstract class AbstractDao<T> implements Dao<T>{
         return executeQuery("SELECT * FROM "+getTableName(), null);
     }
 
+    /**
+     * Returns query parts as an Entry object. The key is the column names (e.g. '(col1, col2)'),
+     * the value is the question marks to prepare the statement (e.g '(?, ?)')
+     * @param row - row from which to prepare insert parts
+     * @return query parts
+     */
     private Map.Entry<String, String> prepareInsertParts(Map<String, Object> row) {
         StringBuilder columnNames = new StringBuilder();
         StringBuilder questionMarks = new StringBuilder();
@@ -82,6 +92,11 @@ public abstract class AbstractDao<T> implements Dao<T>{
         return new AbstractMap.SimpleEntry<String, String>(columnNames.toString(), questionMarks.toString());
     }
 
+    /**
+     * Returns query part as String. (e.g. '(col1=?, col2=?)' )
+     * @param row - row from which to prepare update part
+     * @return query part
+     */
     private String prepareUpdateParts(Map<String, Object> row) {
         StringBuilder updatePart = new StringBuilder();
         updatePart.append(" ");
@@ -94,6 +109,13 @@ public abstract class AbstractDao<T> implements Dao<T>{
         return updatePart.toString();
     }
 
+    /**
+     * Executes any query given as parameter and returns a list of domain class objects
+     * @param query - query to be executed
+     * @param params - parameters of the query
+     * @return list of domain class objects
+     * @throws DaoException
+     */
     public List<T> executeQuery(String query, Object[] params) throws DaoException{
         try(PreparedStatement stmt = getConnection().prepareStatement(query)) {
             if(params != null) {
@@ -112,6 +134,13 @@ public abstract class AbstractDao<T> implements Dao<T>{
         }
     }
 
+    /**
+     * Executes a query that is sure to return a unique domain class object
+     * @param query - query to be executed
+     * @param params - parameters of the query
+     * @return domain class object
+     * @throws DaoException
+     */
     public T executeQueryUnique(String query, Object[] params) throws DaoException {
         List<T> element = executeQuery(query, params);
         if(element != null && element.size()==1) {
@@ -119,6 +148,12 @@ public abstract class AbstractDao<T> implements Dao<T>{
         } else return null;
     }
 
+    /**
+     * Executes update given as parameter
+     * @param query - update to be executes
+     * @param row - row that contains new values for element in database
+     * @throws DaoException
+     */
     public void executeUpdate(String query, Map<String, Object> row) throws DaoException{
         try(PreparedStatement stmt = getConnection().prepareStatement(query)) {
             if(row != null) {

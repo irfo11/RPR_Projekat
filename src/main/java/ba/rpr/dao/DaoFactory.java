@@ -1,5 +1,8 @@
 package ba.rpr.dao;
 
+/**
+ * DAO factory to implement singleton factory design pattern
+ */
 public class DaoFactory {
     private static final MicronutrientDao micronutrientDao = MicronutrientDaoSQLImpl.getInstance();
     private static final SourceDao sourceDao = SourceDaoSQLImpl.getInstance();
