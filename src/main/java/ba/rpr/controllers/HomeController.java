@@ -64,7 +64,7 @@ public class HomeController {
         Stage stage = new Stage();
         stage.setScene(FXMLLoader.load(getClass().getResource(fxmlPath)));
         stage.setTitle(title);
-        stage.getIcons().add(new Image("/fxml/grape.jpeg"));
+        stage.getIcons().add(new Image("/imgs/grape.jpeg"));
         stage.setResizable(false);
         stage.initStyle(StageStyle.UTILITY);
         stage.initModality(Modality.APPLICATION_MODAL); //disables home stage
