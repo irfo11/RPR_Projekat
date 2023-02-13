@@ -1,0 +1,3 @@
+url=jdbc:mysql://database-url:port/database-name?sessionVariables=WAIT_TIMEOUT=28800
+username=your-username
+password=your-password
