@@ -225,8 +225,7 @@ public class AppCLI {
                 printNicelyPresences(presenceManager.micronutrientsInSource(s));
             }
         } catch(Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(-1);
+            System.out.print(e.getMessage());
         }
     }
 }
