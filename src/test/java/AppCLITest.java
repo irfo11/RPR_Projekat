@@ -6,10 +6,7 @@ import ba.rpr.dao.exceptions.DaoException;
 import ba.rpr.domain.Micronutrient;
 import ba.rpr.domain.Presence;
 import ba.rpr.domain.Source;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -44,7 +41,10 @@ class AppCLITest {
         daoFactoryMockedStatic.when(DaoFactory::micronutrientDao).thenReturn(micronutrientDaoMock);
         daoFactoryMockedStatic.when(DaoFactory::presenceDao).thenReturn(presenceDaoMock);
     }
-
+    @AfterAll
+    public static void closeStaticMocks() {
+        daoFactoryMockedStatic.close();
+    }
     @Test
     public void addTest() throws DaoException {
         AppCLI.main(new String[]{"-a", "-s", "testclass"});

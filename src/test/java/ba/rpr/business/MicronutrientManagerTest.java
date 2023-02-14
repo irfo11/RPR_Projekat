@@ -56,6 +56,7 @@ class MicronutrientManagerTest {
                 "Cannot add micronutrient, because Micronutrient with the same name already exists");
         daoFactoryMockedStatic.verify(DaoFactory::micronutrientDao, times(2));
         verify(micronutrientDaoMock).add(micronutrient);
+        daoFactoryMockedStatic.close();
     }
 
 }
