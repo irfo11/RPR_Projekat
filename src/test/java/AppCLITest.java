@@ -1,3 +1,4 @@
+import ba.rpr.AppCLI;
 import ba.rpr.dao.DaoFactory;
 import ba.rpr.dao.MicronutrientDao;
 import ba.rpr.dao.PresenceDao;

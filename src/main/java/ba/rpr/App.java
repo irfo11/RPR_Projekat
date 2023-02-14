@@ -1,3 +1,5 @@
+package ba.rpr;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.image.Image;
