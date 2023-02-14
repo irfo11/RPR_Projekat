@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class PresenceManager implements Manager<Presence>{
 
-    private void validateAmount(double amount) throws DaoException{
+    public void validateAmount(double amount) throws DaoException{
         if(amount <= 0.0) throw new DaoException("Amount cannot be zero or negative.");
     }
 
